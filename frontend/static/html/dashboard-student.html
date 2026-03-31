@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - ZTNAS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding-left: 20px;
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .logout-btn {
+            width: auto;
+            min-width: 140px;
+            display: inline-flex;
+            justify-content: center;
+            padding: 10px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f5f7fa;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .card-content {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        /* Table Style */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Status Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-present {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .badge-absent {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .badge-leave {
+            background: #f39c12;
+            color: white;
+        }
+
+        /* View Sections */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Device Info */
+        .device-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .device-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        .device-info-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                padding: 16px 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                display: block;
+            }
+
+            .container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 16px;
+                box-shadow: none;
+            }
+
+            .sidebar-header {
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+                font-size: 20px;
+            }
+
+            .nav-menu {
+                display: flex;
+                gap: 8px;
+                overflow-x: auto;
+                padding-bottom: 6px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .nav-item {
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .nav-link {
+                white-space: nowrap;
+                padding: 10px 12px;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .logout-btn,
+            .content button,
+            .content input,
+            .content select {
+                min-height: 44px;
+            }
+
+            .sidebar-footer {
+                position: static;
+                margin-top: 12px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 16px;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 640px;
+            }
+
+            .device-info-item {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .header-user {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">👨‍🎓 Student</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link active" data-view="dashboard">📊 Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="attendance">✓ Attendance</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="marks">📝 Marks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="schedule">📅 Schedule</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="devices">📱 Devices</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="profile">⚙️ Profile</a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-title" id="page-title">📊 Student Dashboard</div>
+                <div class="header-user">
+                    <span id="user-name">Student</span>
+                    <div class="user-avatar" id="user-avatar">S</div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Dashboard View -->
+                <div class="view active" id="dashboard-view">
+                    <h2 style="margin-bottom: 20px; color: #2c3e50;">Welcome Back! 👋</h2>
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-icon">✓</div>
+                            <div class="card-title">Attendance</div>
+                            <div class="card-value" id="attendance-percentage">95%</div>
+                            <div class="card-content">Present / Total Classes</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📝</div>
+                            <div class="card-title">Average Grade</div>
+                            <div class="card-value" id="average-grade">A</div>
+                            <div class="card-content">Current Semester</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📱</div>
+                            <div class="card-title">Devices</div>
+                            <div class="card-value" id="devices-count">1</div>
+                            <div class="card-content">Registered Devices</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📅</div>
+                            <div class="card-title">Classes Today</div>
+                            <div class="card-value" id="classes-today">3</div>
+                            <div class="card-content">Scheduled Classes</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="table-container">
+                        <div class="table-header">📌 Recent Activity</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Event</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-activity">
+                                <tr>
+                                    <td>Mar 29, 2026</td>
+                                    <td>Login from Web</td>
+                                    <td><span class="badge badge-present">Success</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Mar 28, 2026</td>
+                                    <td>Attendance Marked</td>
+                                    <td><span class="badge badge-present">Present</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Attendance View -->
+                <div class="view" id="attendance-view">
+                    <h2 style="margin-bottom: 20px; color: #2c3e50;">📊 Attendance Record</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Subject</th>
+                                    <th>Faculty</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table">
+                                <tr>
+                                    <td>Mar 29, 2026</td>
+                                    <td>Data Structures</td>
+                                    <td>Dr. Smith</td>
+                                    <td><span class="badge badge-present">Present</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Mar 28, 2026</td>
+                                    <td>Database Design</td>
+                                    <td>Dr. Johnson</td>
+                                    <td><span class="badge badge-present">Present</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Mar 27, 2026</td>
+                                    <td>Web Development</td>
+                                    <td>Dr. Williams</td>
+                                    <td><span class="badge badge-absent">Absent</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Marks View -->
+                <div class="view" id="marks-view">
+                    <h2 style="margin-bottom: 20px; color: #2c3e50;">📝 Marks / Grades</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Faculty</th>
+                                    <th>Marks</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="marks-table">
+                                <tr>
+                                    <td>Data Structures</td>
+                                    <td>Dr. Smith</td>
+                                    <td>92/100</td>
+                                    <td>A</td>
+                                    <td><span class="badge badge-present">Excellent</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Database Design</td>
+                                    <td>Dr. Johnson</td>
+                                    <td>88/100</td>
+                                    <td>A-</td>
+                                    <td><span class="badge badge-present">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Web Development</td>
+                                    <td>Dr. Williams</td>
+                                    <td>85/100</td>
+                                    <td>B+</td>
+                                    <td><span class="badge badge-present">Good</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Schedule View -->
+                <div class="view" id="schedule-view">
+                    <h2 style="margin-bottom: 20px; color: #2c3e50;">📅 Class Schedule</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Subject</th>
+                                    <th>Faculty</th>
+                                    <th>Room</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedule-table">
+                                <tr>
+                                    <td>09:00 - 10:00</td>
+                                    <td>Data Structures</td>
+                                    <td>Dr. Smith</td>
+                                    <td>Room 101</td>
+                                    <td><span class="badge badge-present">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10:30 - 11:30</td>
+                                    <td>Database Design</td>
+                                    <td>Dr. Johnson</td>
+                                    <td>Room 102</td>
+                                    <td><span class="badge badge-present">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>14:00 - 15:00</td>
+                                    <td>Web Development</td>
+                                    <td>Dr. Williams</td>
+                                    <td>Lab 5</td>
+                                    <td><span class="badge badge-leave">Scheduled</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Devices View -->
+                <div class="view" id="devices-view">
+                    <h2 style="margin-bottom: 20px; color: #2c3e50;">📱 My Devices</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>OS</th>
+                                    <th>Browser</th>
+                                    <th>Last Used</th>
+                                    <th>Trust Score</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devices-table">
+                                <tr>
+                                    <td>My Laptop</td>
+                                    <td>Windows 10</td>
+                                    <td>Chrome 120</td>
+                                    <td>Mar 29, 2026</td>
+                                    <td><span class="badge badge-present">95%</span></td>
+                                    <td><button onclick="removeDevice(1)" style="background:#e74c3c;color:white;border:none;padding:5px 10px;border-radius:3px;cursor:pointer;">Remove</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Profile View -->
+                <div class="view" id="profile-view">
+                    <h2 style="margin-bottom: 20px; color: #2c3e50;">⚙️ My Profile</h2>
+                    <div class="card">
+                        <div class="device-info">
+                            <div class="device-info-item">
+                                <strong>Name:</strong>
+                                <span id="profile-name">Student Name</span>
+                            </div>
+                            <div class="device-info-item">
+                                <strong>Email:</strong>
+                                <span id="profile-email">student@college.edu</span>
+                            </div>
+                            <div class="device-info-item">
+                                <strong>Roll Number:</strong>
+                                <span id="profile-roll">2024001</span>
+                            </div>
+                            <div class="device-info-item">
+                                <strong>Class:</strong>
+                                <span id="profile-class">B.Tech CSE - 2nd Year</span>
+                            </div>
+                            <div class="device-info-item">
+                                <strong>MFA Status:</strong>
+                                <span id="profile-mfa" style="color:#2ecc71;"><strong>✓ Enabled</strong></span>
+                            </div>
+                            <div class="device-info-item">
+                                <strong>Account Status:</strong>
+                                <span id="profile-status" style="color:#2ecc71;"><strong>✓ Active</strong></span>
+                            </div>
+                        </div>
+                        <button onclick="changePassword()" style="background:#667eea;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;margin-top:15px;">🔒 Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/student-dashboard-api.js"></script>
+    <script>
+        let currentUser = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            // auth is already created as a global in auth.js
+            if (typeof auth === 'undefined') {
+                console.error('Auth service not loaded');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check if authenticated
+            if (!auth.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Get current user
+            currentUser = auth.getCurrentUser();
+            
+            // Verify user role is student
+            const role = auth.getUserRole();
+            if (role !== 'student' && role !== 'faculty' && role !== 'hod') {
+                console.warn('Wrong role for student dashboard:', role);
+            }
+
+            // Update header
+            if (currentUser) {
+                document.getElementById('user-name').textContent = currentUser.username;
+                document.getElementById('profile-name').textContent = 
+                    (currentUser.first_name || '') + ' ' + (currentUser.last_name || '');
+                document.getElementById('profile-email').textContent = currentUser.email;
+                
+                // Set avatar
+                const avatar = document.getElementById('user-avatar');
+                avatar.textContent = (currentUser.username || 'S').charAt(0).toUpperCase();
+                
+                // Load dashboard data
+                loadDashboardView();
+            }
+
+            setupNavigation();
+        });
+
+        // Setup navigation
+        function setupNavigation() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const view = this.getAttribute('data-view');
+                    switchView(view);
+                });
+            });
+        }
+
+        // Switch view
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // Show selected view
+            const view = document.getElementById(viewName + '-view');
+            if (view) {
+                view.classList.add('active');
+                
+                // Load data for this view
+                if (viewName === 'dashboard') {
+                    loadDashboardView();
+                } else if (viewName === 'attendance') {
+                    loadAttendanceView();
+                } else if (viewName === 'marks') {
+                    loadMarksView();
+                } else if (viewName === 'devices') {
+                    // loadDevicesView() if it exists
+                }
+            }
+
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-view') === viewName) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Update page title
+            const titles = {
+                dashboard: '📊 Dashboard',
+                attendance: '✓ Attendance',
+                marks: '📝 Marks',
+                schedule: '📅 Schedule',
+                devices: '📱 Devices',
+                profile: '⚙️ Profile'
+            };
+            document.getElementById('page-title').textContent = titles[viewName] || 'Dashboard';
+        }
+
+        // Logout
+        function logout() {
+            if (auth) {
+                auth.logout();
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Remove device
+        function removeDevice(deviceId) {
+            if (confirm('Are you sure you want to remove this device?')) {
+                alert('Device removed successfully! You will need to verify this device again on next login.');
+            }
+        }
+
+        // Change password
+        function changePassword() {
+            alert('Password change functionality coming soon!');
+        }
+    </script>
+</body>
+</html>

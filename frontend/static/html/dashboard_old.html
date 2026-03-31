@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS Dashboard - Zero Trust Network Access System</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🔐 ZTNAS</div>
+                <p class="tagline">Zero Trust Access</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#risk" class="nav-item" data-section="risk">
+                    <span class="icon">⚠️</span>
+                    <span>Risk Management</span>
+                </a>
+                <a href="#devices" class="nav-item" data-section="devices">
+                    <span class="icon">📱</span>
+                    <span>Devices</span>
+                </a>
+                <a href="#behavior" class="nav-item" data-section="behavior">
+                    <span class="icon">📈</span>
+                    <span>Behavior Analytics</span>
+                </a>
+                <a href="#anomalies" class="nav-item" data-section="anomalies">
+                    <span class="icon">🚨</span>
+                    <span>Anomalies</span>
+                </a>
+                <a href="#audit" class="nav-item" data-section="audit">
+                    <span class="icon">📋</span>
+                    <span>Audit Logs</span>
+                </a>
+                <a href="#users" class="nav-item" data-section="users">
+                    <span class="icon">👥</span>
+                    <span>Users</span>
+                </a>
+                <a href="#settings" class="nav-item" data-section="settings">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Admin User</span>
+                        <div class="avatar">👤</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="section active">
+                    <div class="dashboard-grid">
+                        <!-- Key Metrics -->
+                        <div class="metrics-row">
+                            <div class="metric-card">
+                                <div class="metric-icon" style="color: #28a745">📊</div>
+                                <div class="metric-content">
+                                    <div class="metric-label">Active Users</div>
+                                    <div class="metric-value" id="metric-active-users">0</div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon" style="color: #0066cc">🔒</div>
+                                <div class="metric-content">
+                                    <div class="metric-label">MFA Enrolled</div>
+                                    <div class="metric-value" id="metric-mfa-enrolled">0</div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon" style="color: #ffc107">⚠️</div>
+                                <div class="metric-content">
+                                    <div class="metric-label">High Risk</div>
+                                    <div class="metric-value" id="metric-high-risk">0</div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon" style="color: #dc3545">🚨</div>
+                                <div class="metric-content">
+                                    <div class="metric-label">Anomalies</div>
+                                    <div class="metric-value" id="metric-anomalies">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Distribution Chart -->
+                        <div class="card large">
+                            <h3>Risk Distribution</h3>
+                            <div class="chart">
+                                <canvas id="risk-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="card large">
+                            <h3>Recent Access Events</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Time</th>
+                                        <th>Risk Level</th>
+                                        <th>Device</th>
+                                        <th>Location</th>
+                                        <th>Decision</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-events">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Risk Management Section -->
+                <section id="risk-section" class="section">
+                    <div class="section-header">
+                        <h2>Risk Management</h2>
+                        <div class="filter-group">
+                            <select id="risk-filter" onchange="filterRiskData()">
+                                <option value="all">All Users</option>
+                                <option value="critical">Critical Only</option>
+                                <option value="high">High & Critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <h3>Risk Score Breakdown</h3>
+                            <div id="risk-breakdown"></div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Risk Trend (7 days)</h3>
+                            <canvas id="risk-trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card large">
+                        <h3>User Risk Assessment</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Overall Risk</th>
+                                    <th>Device Risk</th>
+                                    <th>Behavior Risk</th>
+                                    <th>Network Risk</th>
+                                    <th>Auth Risk</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="risk-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Devices Section -->
+                <section id="devices-section" class="section">
+                    <div class="section-header">
+                        <h2>Device Management</h2>
+                        <button class="btn-primary" onclick="showAddDeviceForm()">+ Register Device</button>
+                    </div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <h3>Device Trust Distribution</h3>
+                            <div id="device-trust-chart"></div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Device Summary</h3>
+                            <div class="summary-stats">
+                                <div class="stat">
+                                    <div class="stat-label">Total Devices</div>
+                                    <div class="stat-value" id="stat-total-devices">0</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Trusted</div>
+                                    <div class="stat-value" id="stat-trusted-devices">0</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">New Devices</div>
+                                    <div class="stat-value" id="stat-new-devices">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card large">
+                        <h3>Registered Devices</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Device Name</th>
+                                    <th>Type</th>
+                                    <th>OS</th>
+                                    <th>Owner</th>
+                                    <th>Trust Score</th>
+                                    <th>Last Used</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devices-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Behavior Analytics Section -->
+                <section id="behavior-section" class="section">
+                    <div class="section-header">
+                        <h2>Behavior Analytics</h2>
+                    </div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <h3>Login Patterns</h3>
+                            <canvas id="login-pattern-chart"></canvas>
+                        </div>
+
+                        <div class="card">
+                            <h3>Location Distribution</h3>
+                            <div id="location-distribution"></div>
+                        </div>
+                    </div>
+
+                    <div class="card large">
+                        <h3>User Behavior Profiles</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Typical Hours</th>
+                                    <th>Typical Days</th>
+                                    <th>Typical Locations</th>
+                                    <th>Devices Used</th>
+                                    <th>Avg Session</th>
+                                </tr>
+                            </thead>
+                            <tbody id="behavior-table">
+                                <tr>
+                                    <td colspan="6" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Anomalies Section -->
+                <section id="anomalies-section" class="section">
+                    <div class="section-header">
+                        <h2>Security Anomalies</h2>
+                        <div class="filter-group">
+                            <select id="anomaly-filter" onchange="filterAnomalies()">
+                                <option value="all">All</option>
+                                <option value="unacknowledged">Unacknowledged</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card large">
+                        <h3>Detected Anomalies</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Anomaly Type</th>
+                                    <th>Severity</th>
+                                    <th>Description</th>
+                                    <th>Detected</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anomalies-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Audit Logs Section -->
+                <section id="audit-section" class="section">
+                    <div class="section-header">
+                        <h2>Audit Logs</h2>
+                        <div class="filter-group">
+                            <input type="date" id="audit-date-start" placeholder="Start Date">
+                            <input type="date" id="audit-date-end" placeholder="End Date">
+                            <select id="audit-action-filter">
+                                <option value="">All Actions</option>
+                                <option value="login">Login</option>
+                                <option value="logout">Logout</option>
+                                <option value="mfa_verify">MFA Verify</option>
+                                <option value="device_register">Device Register</option>
+                            </select>
+                            <button class="btn-secondary" onclick="filterAuditLogs()">Filter</button>
+                            <button class="btn-secondary" onclick="exportAuditLogs()">📥 Export</button>
+                        </div>
+                    </div>
+
+                    <div class="card large">
+                        <h3>Activity Log</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Resource</th>
+                                    <th>Status</th>
+                                    <th>IP Address</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users-section" class="section">
+                    <div class="section-header">
+                        <h2>User Management</h2>
+                        <button class="btn-primary" onclick="showAddUserForm()">+ Add User</button>
+                    </div>
+
+                    <div class="card large">
+                        <h3>Users</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>MFA</th>
+                                    <th>Devices</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings-section" class="section">
+                    <div class="section-header">
+                        <h2>System Settings</h2>
+                    </div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <h3>Security Policies</h3>
+                            <div class="settings-form">
+                                <label>
+                                    <input type="checkbox" checked> Require MFA
+                                </label>
+                                <label>
+                                    <input type="checkbox" checked> Device Trust Required
+                                </label>
+                                <label>
+                                    <input type="checkbox" checked> Enable Anomaly Detection
+                                </label>
+                                <label>
+                                    Max Risk Tolerance:
+                                    <select>
+                                        <option value="low">Low (0.3)</option>
+                                        <option value="medium" selected>Medium (0.6)</option>
+                                        <option value="high">High (0.8)</option>
+                                    </select>
+                                </label>
+                                <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>System Info</h3>
+                            <div class="system-info">
+                                <p><strong>Version:</strong> 1.0.0 (Phase 5)</p>
+                                <p><strong>Database:</strong> PostgreSQL 18</p>
+                                <p><strong>API Version:</strong> v1</p>
+                                <p><strong>Last Updated:</strong> <span id="last-update">--</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-add-device" class="modal hidden"></div>
+    <div id="modal-add-user" class="modal hidden"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

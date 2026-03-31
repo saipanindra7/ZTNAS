@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Secure Sign-In</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--slate-950) 0%, var(--slate-900) 100%);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-500) 100%);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .logo-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--slate-100);
+            margin: 0;
+        }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            margin: var(--spacing-6) 0;
+            color: var(--slate-500);
+            font-size: 12px;
+        }
+
+        .form-divider span {
+            flex: 1;
+            height: 1px;
+            background-color: var(--slate-700);
+        }
+
+        .auth-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-3);
+            margin-top: var(--spacing-6);
+        }
+
+        .auth-option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            color: var(--slate-300);
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            text-decoration: none;
+        }
+
+        .auth-option-btn:hover {
+            background-color: var(--slate-700);
+            border-color: var(--brand-600);
+            color: var(--slate-100);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            color: var(--green-400);
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: var(--spacing-4);
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: var(--spacing-6);
+            }
+
+            .logo-section {
+                margin-bottom: var(--spacing-6);
+            }
+
+            .auth-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-icon">🔐</div>
+                <div class="logo-text">
+                    <h1>ZTNAS</h1>
+                </div>
+            </div>
+
+            <!-- Login Section -->
+            <div id="login-section" class="login-form">
+                <h2 style="color: white; text-align: center; margin-bottom: var(--spacing-4); font-size: 20px;">Secure Sign-In</h2>
+
+                <!-- Alert Messages -->
+                <div id="alertBox" style="display: none;"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Username or Email Address</label>
+                        <input type="text" id="email" name="email" placeholder="Enter username or email (e.g., testcollege or testcollege@example.edu)" required>
+                        <small style="color: var(--slate-400); font-size: 11px; margin-top: 4px; display: block;">
+                            💡 Tip: You can use either your username or email address to login
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--slate-400); margin-bottom: var(--spacing-4);">
+                        💡 Leave password blank for new user setup.
+                    </p>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: var(--spacing-3) var(--spacing-4);">
+                        <span id="btnText">Sign In</span>
+                    </button>
+                </form>
+
+                <div class="form-divider">
+                    <span></span>
+                    <span>or continue with</span>
+                    <span></span>
+                </div>
+
+                <div class="auth-options">
+                    <button class="auth-option-btn" onclick="goToRegister()">
+                        <span>✍️</span>
+                        <span>Register</span>
+                    </button>
+                    <button class="auth-option-btn" onclick="demoLogin()">
+                        <span>👤</span>
+                        <span>Demo Login</span>
+                    </button>
+                </div>
+
+                <div class="security-badge">
+                    ✓ AES-256 Encrypted • Zero-Trust Protected
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/device-verification.js"></script>
+    <script src="/js/mfa-handler.js"></script>
+    <script src="/js/login.js"></script>
+</body>
+</html>

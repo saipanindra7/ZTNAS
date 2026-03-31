@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #0052a3;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #c00;
+        }
+
+        .success {
+            background: #efe;
+            color: #060;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #060;
+        }
+
+        .footer-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .footer-text a {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 12px;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../index.html" class="back-link">← Back to Home</a>
+        <div class="logo">🔐</div>
+        <h1>Login</h1>
+        <p class="subtitle">ZTNAS Zero Trust Network Access</p>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+        <div id="success-message" class="success" style="display: none;"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">Email or Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your email or username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+
+            <div class="loading" id="loading">Logging in...</div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <p class="footer-text">
+            Don't have an account? <a href="register.html">Register here</a>
+        </p>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-message');
+            const successMsg = document.getElementById('success-message');
+            const loading = document.getElementById('loading');
+            const form = document.getElementById('loginForm');
+
+            // Log input values for debugging
+            console.log('=== LOGIN ATTEMPT ===');
+            console.log('Username field value:', username);
+            console.log('Username length:', username.length);
+            console.log('Password field value length:', password.length);
+            console.log('Password first char code:', password.charCodeAt(0));
+            console.log('Request will be sent to:', `${API_BASE}/auth/login`);
+
+            // Clear messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            loading.style.display = 'block';
+
+            try {
+                const requestBody = {
+                    username: username,
+                    password: password
+                };
+                
+                console.log('Request body:', requestBody);
+                console.log('Request body JSON:', JSON.stringify(requestBody));
+
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = { detail: `Server error: ${response.status} ${response.statusText}` };
+                }
+
+                console.log('Response status:', response.status);
+                console.log('Response status text:', response.statusText);
+                console.log('Response headers:', Object.fromEntries(response.headers));
+                console.log('Response data:', data);
+                console.log('Response data type:', typeof data);
+
+                if (response.ok) {
+                    console.log('Login successful! Token received:', data.access_token ? 'YES' : 'NO');
+                    // Store auth token
+                    localStorage.setItem('authToken', data.access_token);
+                    localStorage.setItem('tokenType', data.token_type || 'bearer');
+                    
+                    successMsg.textContent = 'Login successful! Redirecting...';
+                    successMsg.style.display = 'block';
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    console.log('Login failed with status', response.status);
+                    console.log('Error detail:', data.detail);
+                    errorMsg.textContent = data.detail || `Login failed (${response.status}). Please check your credentials.`;
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.log('Catch block error:', error);
+                console.log('Error message:', error.message);
+                console.log('Error stack:', error.stack);
+                
+                const errorText = error.message === 'Failed to fetch' 
+                    ? 'Network error: Cannot reach API at http://localhost:8000. Make sure:\n1. Backend is running\n2. Check browser console (F12) for CORS errors'
+                    : error.message;
+                errorMsg.textContent = 'Error: ' + errorText;
+                errorMsg.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+                errorMsg.style.display = 'block';
+                console.error('Login error:', error);
+                console.error('Trying to connect to:', `${API_BASE}/auth/login`);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

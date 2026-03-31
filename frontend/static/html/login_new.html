@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Secure Sign-In</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--slate-950) 0%, var(--slate-900) 100%);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-500) 100%);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .logo-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--slate-100);
+            margin: 0;
+        }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            margin: var(--spacing-6) 0;
+            color: var(--slate-500);
+            font-size: 12px;
+        }
+
+        .form-divider span {
+            flex: 1;
+            height: 1px;
+            background-color: var(--slate-700);
+        }
+
+        .auth-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-3);
+            margin-top: var(--spacing-6);
+        }
+
+        .auth-option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            color: var(--slate-300);
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            text-decoration: none;
+        }
+
+        .auth-option-btn:hover {
+            background-color: var(--slate-700);
+            border-color: var(--brand-600);
+            color: var(--slate-100);
+        }
+
+        .mfa-setup-container {
+            display: none;
+        }
+
+        .mfa-setup-container.active {
+            display: block;
+        }
+
+        .mfa-options {
+            display: grid;
+            gap: var(--spacing-3);
+        }
+
+        .mfa-option {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-4);
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .mfa-option:hover {
+            background-color: var(--slate-700);
+            border-color: var(--brand-600);
+        }
+
+        .mfa-option.selected {
+            border-color: var(--brand-600);
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+
+        .mfa-icon {
+            font-size: 24px;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mfa-info {
+            flex: 1;
+        }
+
+        .mfa-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate-100);
+            margin: 0 0 var(--spacing-1) 0;
+        }
+
+        .mfa-info p {
+            font-size: 12px;
+            color: var(--slate-400);
+            margin: 0;
+        }
+
+        .mfa-radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mfa-option.selected .mfa-radio {
+            border-color: var(--brand-600);
+            background-color: var(--brand-600);
+        }
+
+        .mfa-radio::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            display: none;
+        }
+
+        .mfa-option.selected .mfa-radio::after {
+            display: block;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            color: var(--green-400);
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: var(--spacing-4);
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: var(--spacing-6);
+            }
+
+            .logo-section {
+                margin-bottom: var(--spacing-6);
+            }
+
+            .auth-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-icon">🔐</div>
+                <div class="logo-text">
+                    <h1>ZTNAS</h1>
+                </div>
+            </div>
+
+            <!-- Login Section -->
+            <div id="login-section" class="login-form">
+                <h2 style="color: white; text-align: center; margin-bottom: var(--spacing-4); font-size: 20px;">Secure Sign-In</h2>
+
+                <!-- Alert Messages -->
+                <div id="alertBox" style="display: none;"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--slate-400); margin-bottom: var(--spacing-4);">
+                        💡 Leave password blank for new user setup.
+                    </p>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: var(--spacing-3) var(--spacing-4);">
+                        <span id="btnText">Sign In</span>
+                    </button>
+                </form>
+
+                <div class="form-divider">
+                    <span></span>
+                    <span>or continue with</span>
+                    <span></span>
+                </div>
+
+                <div class="auth-options">
+                    <button class="auth-option-btn" onclick="goToRegister()">
+                        <span>✍️</span>
+                        <span>Register</span>
+                    </button>
+                    <button class="auth-option-btn" onclick="demoLogin()">
+                        <span>👤</span>
+                        <span>Demo Login</span>
+                    </button>
+                </div>
+
+                <div class="security-badge">
+                    ✓ AES-256 Encrypted • Zero-Trust Protected
+                </div>
+            </div>
+
+            <!-- Onboarding: Device Check -->
+            <div id="deviceCheck-section" class="mfa-setup-container">
+                <h2 style="color: white; text-align: center; margin-bottom: var(--spacing-6); font-size: 20px;">Verifying Your Device</h2>
+                <p style="text-align: center; color: var(--slate-400); margin-bottom: var(--spacing-6);">
+                    Please wait while we confirm that you are using the device assigned to you by your administrator.
+                </p>
+                <div class="loading" style="margin: 0 auto; display: block;"></div>
+                <p id="deviceStatus" style="text-align: center; color: var(--green-400); margin-top: var(--spacing-4);"></p>
+            </div>
+
+            <!-- Onboarding: Password Setup -->
+            <div id="passwordSetup-section" class="mfa-setup-container">
+                <h2 style="color: white; text-align: center; margin-bottom: var(--spacing-4); font-size: 20px;">Create Your Password</h2>
+                <p style="text-align: center; color: var(--slate-400); margin-bottom: var(--spacing-6); font-size: 14px;">
+                    Welcome! Please set a secure password to activate your account.
+                </p>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Set Password & Continue</button>
+                </form>
+            </div>
+
+            <!-- MFA Selection -->
+            <div id="mfaSelection-section" class="mfa-setup-container">
+                <h2 style="color: white; text-align: center; margin-bottom: var(--spacing-3); font-size: 20px;">Secure Your Account</h2>
+                <p style="text-align: center; color: var(--slate-400); margin-bottom: var(--spacing-6); font-size: 13px;">
+                    Select a multi-factor authentication method.
+                </p>
+                
+                <div class="mfa-options">
+                    <div class="mfa-option" onclick="selectMFA('picture')">
+                        <div class="mfa-icon">🖼️</div>
+                        <div class="mfa-info">
+                            <h3>Picture Password</h3>
+                            <p>Select a sequence of memorable images.</p>
+                        </div>
+                        <div class="mfa-radio"></div>
+                    </div>
+                    <div class="mfa-option" onclick="selectMFA('securitykey')">
+                        <div class="mfa-icon">🔑</div>
+                        <div class="mfa-info">
+                            <h3>Security Key</h3>
+                            <p>Use a physical key like a YubiKey.</p>
+                        </div>
+                        <div class="mfa-radio"></div>
+                    </div>
+                </div>
+
+                <button id="mfaContinueBtn" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-6);" disabled>
+                    Continue with Selected Method
+                </button>
+                <button class="btn btn-ghost" style="width: 100%; margin-top: var(--spacing-3);" onclick="goBackToPassword()">
+                    Back
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/login.js"></script>
+</body>
+</html>

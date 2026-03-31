@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Device Management</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        .devices-container {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-6);
+        }
+
+        .device-card {
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate-100);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .device-detail {
+            font-size: 12px;
+            color: var(--slate-400);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .device-os {
+            display: inline-block;
+            padding: var(--spacing-1) var(--spacing-3);
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            color: var(--blue-400);
+            margin-top: var(--spacing-2);
+        }
+
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            color: var(--green-400);
+        }
+
+        .device-status.untrusted {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--red-400);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--green-400);
+        }
+
+        .device-status.untrusted .status-indicator {
+            background-color: var(--red-400);
+        }
+
+        .device-actions {
+            display: flex;
+            gap: var(--spacing-2);
+        }
+
+        .btn-small {
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            color: var(--slate-300);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all var(--transition-normal);
+        }
+
+        .btn-small:hover {
+            background-color: var(--brand-600);
+            border-color: var(--brand-500);
+            color: white;
+        }
+
+        .btn-small.danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--red-400);
+        }
+
+        .btn-small.danger:hover {
+            background-color: var(--red-600);
+            border-color: var(--red-500);
+            color: white;
+        }
+
+        .trust-score {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand-400);
+        }
+
+        .integrity-info {
+            margin-top: var(--spacing-2);
+            padding: var(--spacing-2);
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            color: var(--slate-300);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-8);
+            color: var(--slate-400);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">🔐</div>
+                <div class="logo">ZTNAS</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item active" data-view="devices">
+                    <span class="nav-icon">📱</span>
+                    <span>My Devices</span>
+                </button>
+                <button class="nav-item" data-view="login-activity">
+                    <span class="nav-icon">🔐</span>
+                    <span>Login Activity</span>
+                </button>
+                <button class="nav-item" data-view="mfa">
+                    <span class="nav-icon">🔑</span>
+                    <span>MFA Setup</span>
+                </button>
+                <button class="nav-item" data-view="profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>ZTNAS v1.0.0</p>
+                <button class="btn btn-secondary btn-sm" onclick="logout()" style="width: 100%; margin-top: var(--spacing-3);">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="page-title">My Devices</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Loading...</span>
+                        <div class="avatar" id="avatar">👤</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <div class="devices-container">
+                    <div style="margin-bottom: var(--spacing-6);">
+                        <h2 style="margin-bottom: var(--spacing-2);">Trusted Devices</h2>
+                        <p style="color: var(--slate-400); font-size: 13px;">Devices that have been verified and are authorized to access your account</p>
+                    </div>
+
+                    <div id="devicesList">
+                        <div class="empty-state">
+                            <div style="font-size: 48px; margin-bottom: var(--spacing-4);">📱</div>
+                            <p>Loading devices...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin View: All User Devices -->
+                <div id="adminDevicesSection" style="margin-top: var(--spacing-8); display: none;">
+                    <div class="devices-container">
+                        <div style="margin-bottom: var(--spacing-6);">
+                            <h2 style="margin-bottom: var(--spacing-2);">All User Devices</h2>
+                            <p style="color: var(--slate-400); font-size: 13px;">View and manage devices for all users (Admin view)</p>
+                        </div>
+
+                        <div style="margin-bottom: var(--spacing-4);">
+                            <input type="text" id="userSearch" placeholder="Search by username..." style="
+                                padding: var(--spacing-2) var(--spacing-3);
+                                background-color: var(--slate-900);
+                                border: 1px solid var(--slate-700);
+                                border-radius: var(--radius-md);
+                                color: var(--slate-100);
+                                width: 100%;
+                                max-width: 300px;
+                            " onkeyup="filterUserDevices()">
+                        </div>
+
+                        <div id="adminDevicesList">
+                            <div class="empty-state" style="padding: var(--spacing-4);">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+
+        window.addEventListener('load', async () => {
+            await loadCurrentUser();
+            await loadMyDevices();
+
+            // Check if admin
+            const isAdmin = await checkAdminRole();
+            if (isAdmin) {
+                document.getElementById('adminDevicesSection').style.display = 'block';
+                await loadAllUserDevices();
+            }
+
+            setupNavigation();
+        });
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('user-name').textContent = user.username || 'User';
+                    document.getElementById('avatar').textContent = (user.username || 'U')[0].toUpperCase();
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+            }
+        }
+
+        async function checkAdminRole() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    return user.roles && user.roles.some(r => r.name === 'admin');
+                }
+                return false;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function loadMyDevices() {
+            try {
+                // Detect current device info
+                const currentDevice = detectDeviceInfo();
+
+                // For now, show mock device data
+                const devices = [
+                    {
+                        id: 1,
+                        device_name: currentDevice.name,
+                        device_type: currentDevice.type,
+                        os: currentDevice.os,
+                        os_version: currentDevice.version,
+                        browser: currentDevice.browser,
+                        ip_address: 'Loading...',
+                        trust_score: 95,
+                        is_trusted: true,
+                        integrity_score: 95,
+                        last_used: new Date().toLocaleString(),
+                        created_at: new Date(Date.now() - 7*24*60*60*1000).toLocaleString()
+                    }
+                ];
+
+                displayMyDevices(devices);
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                document.getElementById('devicesList').innerHTML = '<div class="empty-state">Error loading devices</div>';
+            }
+        }
+
+        function detectDeviceInfo() {
+            const ua = navigator.userAgent;
+            let os, version, type, browser;
+
+            // Detect OS
+            if (ua.includes('Windows')) {
+                os = 'Windows';
+                version = ua.match(/Windows NT ([\d.]+)/) ? ua.match(/Windows NT ([\d.]+)/)[1] : 'Unknown';
+                type = '💻';
+            } else if (ua.includes('Mac')) {
+                os = 'macOS';
+                version = ua.match(/Mac OS X ([\d_]+)/) ? ua.match(/Mac OS X ([\d_]+)/)[1].replace(/_/g, '.') : 'Unknown';
+                type = '🍎';
+            } else if (ua.includes('Linux')) {
+                os = 'Linux';
+                version = ua.match(/Linux/) ? 'Unknown' : 'Unknown';
+                type = '🐧';
+            } else if (ua.includes('Android')) {
+                os = 'Android';
+                version = ua.match(/Android ([\d.]+)/) ? ua.match(/Android ([\d.]+)/)[1] : 'Unknown';
+                type = '📱';
+            } else if (ua.includes('iPhone')) {
+                os = 'iOS';
+                version = ua.match(/OS ([\d_]+)/) ? ua.match(/OS ([\d_]+)/)[1].replace(/_/g, '.') : 'Unknown';
+                type = '📲';
+            } else {
+                os = 'Unknown';
+                version = 'Unknown';
+                type = '📱';
+            }
+
+            // Detect Browser
+            if (ua.includes('Chrome')) {
+                browser = 'Chrome';
+            } else if (ua.includes('Safari')) {
+                browser = 'Safari';
+            } else if (ua.includes('Firefox')) {
+                browser = 'Firefox';
+            } else if (ua.includes('Edge')) {
+                browser = 'Edge';
+            } else {
+                browser = 'Unknown';
+            }
+
+            return {
+                name: `${os} Device (${browser})`,
+                type: type,
+                os: os,
+                version: version,
+                browser: browser
+            };
+        }
+
+        function displayMyDevices(devices) {
+            const container = document.getElementById('devicesList');
+
+            if (devices.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No devices found</p></div>';
+                return;
+            }
+
+            container.innerHTML = devices.map(device => `
+                <div class="device-card">
+                    <div class="device-info">
+                        <div class="device-name">${device.type} ${device.device_name}</div>
+                        <div class="device-detail">
+                            <strong>OS:</strong> ${device.os} ${device.os_version}
+                        </div>
+                        <div class="device-detail">
+                            <strong>Browser:</strong> ${device.browser}
+                        </div>
+                        <div class="device-detail">
+                            <strong>Added:</strong> ${device.created_at}
+                        </div>
+                        <div class="device-detail">
+                            <strong>Last Used:</strong> ${device.last_used}
+                        </div>
+                        <div class="device-os">
+                            Trust Score: <span class="trust-score">${device.trust_score}%</span>
+                        </div>
+                        <div class="integrity-info">
+                            System Integrity: ${device.integrity_score}% - ${device.integrity_score > 90 ? '✓ Healthy' : '⚠ Warning'}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="device-status ${device.is_trusted ? '' : 'untrusted'}">
+                            <div class="status-indicator"></div>
+                            <span>${device.is_trusted ? 'Trusted' : 'Untrusted'}</span>
+                        </div>
+                        ${device.is_trusted ? `
+                            <button class="btn-small danger" style="width: 100%; margin-top: var(--spacing-2);" onclick="removeDevice(${device.id})">
+                                Remove Device
+                            </button>
+                        ` : `
+                            <button class="btn-small" style="width: 100%; margin-top: var(--spacing-2);" onclick="trustDevice(${device.id})">
+                                Trust Device
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadAllUserDevices() {
+            try {
+                // Mock data for all users' devices
+                const allDevices = [
+                    {
+                        user_id: 1,
+                        username: 'johndoe',
+                        device_id: 1,
+                        device_name: 'Work MacBook',
+                        os: 'macOS',
+                        os_version: '14.2',
+                        browser: 'Chrome',
+                        trust_score: 95,
+                        is_trusted: true,
+                        integrity_score: 95,
+                        last_login: new Date().toLocaleString()
+                    },
+                    {
+                        user_id: 2,
+                        username: 'janedoe',
+                        device_id: 2,
+                        device_name: 'Personal iPhone',
+                        os: 'iOS',
+                        os_version: '17.3',
+                        browser: 'Safari',
+                        trust_score: 87,
+                        is_trusted: true,
+                        integrity_score: 90,
+                        last_login: new Date(Date.now() - 60000).toLocaleString()
+                    },
+                    {
+                        user_id: 3,
+                        username: 'admin',
+                        device_id: 3,
+                        device_name: 'Admin Desktop',
+                        os: 'Windows',
+                        os_version: '10.0',
+                        browser: 'Edge',
+                        trust_score: 100,
+                        is_trusted: true,
+                        integrity_score: 100,
+                        last_login: new Date().toLocaleString()
+                    }
+                ];
+
+                displayAllUserDevices(allDevices);
+            } catch (error) {
+                console.error('Error loading all devices:', error);
+            }
+        }
+
+        function displayAllUserDevices(devices) {
+            const container = document.getElementById('adminDevicesList');
+
+            if (devices.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No devices found</p></div>';
+                return;
+            }
+
+            container.innerHTML = devices.map(device => `
+                <div class="device-card" style="border-left: 4px solid var(--brand-600);">
+                    <div class="device-info">
+                        <div class="device-name">
+                            ${device.username} - ${device.os}
+                        </div>
+                        <div class="device-detail">
+                            <strong>Device:</strong> ${device.device_name}
+                        </div>
+                        <div class="device-detail">
+                            <strong>OS:</strong> ${device.os} ${device.os_version}
+                        </div>
+                        <div class="device-detail">
+                            <strong>Browser:</strong> ${device.browser}
+                        </div>
+                        <div class="device-detail">
+                            <strong>Last Login:</strong> ${device.last_login}
+                        </div>
+                        <div class="device-os">
+                            Trust Score: <span class="trust-score">${device.trust_score}%</span>
+                        </div>
+                        <div class="integrity-info">
+                            System Integrity: ${device.integrity_score}% - ${device.integrity_score > 90 ? '✓ Healthy' : '⚠ Warning'}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="device-status ${device.is_trusted ? '' : 'untrusted'}">
+                            <div class="status-indicator"></div>
+                            <span>${device.is_trusted ? 'Trusted' : 'Untrusted'}</span>
+                        </div>
+                        <button class="btn-small danger" style="width: 100%; margin-top: var(--spacing-2);" onclick="adminRemoveDevice('${device.username}', ${device.device_id})">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterUserDevices() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const devices = document.querySelectorAll('#adminDevicesList .device-card');
+            devices.forEach(card => {
+                if (card.textContent.toLowerCase().includes(search)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function removeDevice(deviceId) {
+            alert('Device removed. This device will no longer be trusted.');
+        }
+
+        function trustDevice(deviceId) {
+            alert('Device has been trusted.');
+        }
+
+        function adminRemoveDevice(username, deviceId) {
+            if (confirm(`Remove device for ${username}?`)) {
+                alert('Device removed successfully.');
+            }
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const view = this.getAttribute('data-view');
+                    if (view === 'dashboard') {
+                        window.location.href = 'dashboard.html';
+                    } else if (view === 'login-activity') {
+                        window.location.href = 'login-activity.html';
+                    } else if (view === 'mfa') {
+                        window.location.href = 'mfa-setup.html';
+                    } else if (view === 'profile') {
+                        window.location.href = 'profile.html';
+                    }
+                });
+            });
+        }
+
+        function logout() {
+            auth.logout();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

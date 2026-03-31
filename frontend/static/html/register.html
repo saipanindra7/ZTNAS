@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Register</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--slate-950) 0%, var(--slate-900) 100%);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-500) 100%);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .logo-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--slate-100);
+            margin: 0;
+        }
+
+        .password-strength {
+            display: flex;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-2);
+        }
+
+        .strength-bar {
+            height: 4px;
+            flex: 1;
+            background-color: var(--slate-700);
+            border-radius: 2px;
+            transition: background-color var(--transition-fast);
+        }
+
+        .strength-bar.weak {
+            background-color: var(--red-500);
+        }
+
+        .strength-bar.fair {
+            background-color: var(--yellow-500);
+        }
+
+        .strength-bar.good {
+            background-color: var(--brand-500);
+        }
+
+        .strength-bar.strong {
+            background-color: var(--green-500);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: var(--spacing-6);
+            color: var(--slate-400);
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: var(--brand-400);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            color: var(--brand-300);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            color: var(--green-400);
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: var(--spacing-4);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-icon">🔐</div>
+                <div class="logo-text">
+                    <h1>ZTNAS</h1>
+                </div>
+            </div>
+
+            <h2 style="color: white; text-align: center; margin-bottom: var(--spacing-4); font-size: 20px;">Create Your Account</h2>
+
+            <!-- Alert Messages -->
+            <div id="alertBox" style="display: none;"></div>
+
+            <form id="registerForm" class="login-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                    </div>
+                    <p style="font-size: 11px; color: var(--slate-400); margin-top: var(--spacing-2);">
+                        At least 8 characters with uppercase, lowercase, numbers, and symbols
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm">Confirm Password</label>
+                    <input type="password" id="confirm" name="confirm" placeholder="Confirm password" required>
+                </div>
+
+                <div style="display: flex; align-items: flex-start; gap: var(--spacing-2); margin-bottom: var(--spacing-4);">
+                    <input type="checkbox" id="agree" name="agree" required style="margin-top: 3px;">
+                    <label for="agree" style="margin: 0; font-size: 13px;">
+                        I agree to the Terms of Service and Privacy Policy
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: var(--spacing-3) var(--spacing-4);">
+                    <span id="btnText">Create Account</span>
+                </button>
+            </form>
+
+            <div class="security-badge">
+                ✓ AES-256 Encrypted • Zero-Trust Protected
+            </div>
+
+            <div class="login-link">
+                Already have an account? <a href="/login.html">Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/register.js"></script>
+</body>
+</html>

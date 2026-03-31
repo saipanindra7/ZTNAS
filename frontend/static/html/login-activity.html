@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Login Activity</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        .activity-container {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+
+        .activity-header {
+            padding: var(--spacing-6);
+            background-color: var(--slate-850);
+            border-bottom: 1px solid var(--slate-700);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-filters {
+            display: flex;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-6);
+        }
+
+        .filter-input {
+            padding: var(--spacing-2) var(--spacing-4);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-md);
+            color: var(--slate-100);
+            font-size: 13px;
+        }
+
+        .filter-input::placeholder {
+            color: var(--slate-500);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background-color: var(--slate-850);
+            border-bottom: 1px solid var(--slate-700);
+        }
+
+        th {
+            padding: var(--spacing-4) var(--spacing-6);
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: var(--spacing-4) var(--spacing-6);
+            border-bottom: 1px solid var(--slate-700);
+            font-size: 13px;
+        }
+
+        tr:hover td {
+            background-color: var(--slate-750);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--green-400);
+        }
+
+        .status-failed {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--red-400);
+        }
+
+        .alert-warning {
+            background-color: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-6);
+            color: var(--yellow-400);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-8);
+            color: var(--slate-400);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-6);
+            padding: var(--spacing-4) 0;
+        }
+
+        .pagination button {
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-md);
+            color: var(--slate-300);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .pagination button.active {
+            background-color: var(--brand-600);
+            border-color: var(--brand-500);
+            color: white;
+        }
+
+        .device-info {
+            display: flex;
+            gap: var(--spacing-2);
+            flex-direction: column;
+            font-size: 12px;
+        }
+
+        .device-info-item {
+            color: var(--slate-300);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(37, 99, 235, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--brand-600);
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">🔐</div>
+                <div class="logo">ZTNAS</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item" onclick="goToDashboard()">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" onclick="goToDevices()">
+                    <span class="nav-icon">📱</span>
+                    <span>My Devices</span>
+                </button>
+                <button class="nav-item active" data-view="activity">
+                    <span class="nav-icon">📋</span>
+                    <span>Login Activity</span>
+                </button>
+                <button class="nav-item" onclick="goToProfile()">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>ZTNAS v1.0.0</p>
+                <button class="btn btn-secondary btn-sm" onclick="logout()" style="width: 100%; margin-top: var(--spacing-3);">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1>Login Activity</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Loading...</span>
+                        <div class="avatar" id="avatar">👤</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <div class="alert-warning">
+                    ⚠️ If you see any unrecognized login attempts, change your password immediately and contact support.
+                </div>
+
+                <div class="activity-filters">
+                    <input type="text" class="filter-input" id="filterIP" placeholder="Filter by IP address..." onkeyup="filterActivity()">
+                    <select class="filter-input" id="filterStatus" onchange="filterActivity()">
+                        <option value="">All Statuses</option>
+                        <option value="success">Success</option>
+                        <option value="failure">Failed</option>
+                    </select>
+                    <input type="date" class="filter-input" id="filterDate" onchange="filterActivity()">
+                </div>
+
+                <div class="activity-container" id="activityContainer">
+                    <div class="empty-state">
+                        <div class="loading-spinner"></div>
+                        <p style="margin-top: var(--spacing-4);">Loading login activity...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+        let allLogs = [];
+
+        window.addEventListener('load', async () => {
+            await loadUserInfo();
+            await loadLoginActivity();
+        });
+
+        async function loadUserInfo() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('user-name').textContent = user.username;
+                    document.getElementById('avatar').textContent = (user.username || 'U')[0].toUpperCase();
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        async function loadLoginActivity() {
+            try {
+                // Get current user's activity
+
+                const res = await fetch(`${API_BASE}/admin/logs?action=login&limit=100`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    allLogs = (data.logs || []).filter(log => log.action.includes('login'));
+                    displayActivity();
+                } else {
+                    // Fallback - show no activity
+                    document.getElementById('activityContainer').innerHTML = '<div class="empty-state">No login activity found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading activity:', error);
+                document.getElementById('activityContainer').innerHTML = '<div class="empty-state">Error loading login activity</div>';
+            }
+        }
+
+        function displayActivity() {
+            if (allLogs.length === 0) {
+                document.getElementById('activityContainer').innerHTML = '<div class="empty-state">No login activity recorded yet</div>';
+                return;
+            }
+
+            const table = `
+                <div class="activity-header">
+                    <h3 style="font-size: 14px; font-weight: 600;">Login History</h3>
+                    <p style="font-size: 12px; color: var(--slate-400);">Total: ${allLogs.length} login(s)</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                            <th>IP Address</th>
+                            <th>Device</th>
+                            <th>Location</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityBody">
+                        ${allLogs.map(log => `
+                            <tr>
+                                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                                <td>
+                                    <span class="status-badge ${log.status === 'success' ? 'status-success' : 'status-failed'}">
+                                        ${log.status === 'success' ? '✓ Success' : '✗ Failed'}
+                                    </span>
+                                </td>
+                                <td><code style="background: var(--slate-900); padding: 4px 8px; border-radius: 4px;">${log.ip_address || '—'}</code></td>
+                                <td>
+                                    <div class="device-info">
+                                        <span class="device-info-item">${log.details?.device_type || 'Unknown'}</span>
+                                        <span class="device-info-item" style="color: var(--slate-500);">${log.details?.os || 'Unknown OS'}</span>
+                                    </div>
+                                </td>
+                                <td>${log.details?.location || '—'}</td>
+                                <td>${log.details?.reason || 'Normal login'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('activityContainer').innerHTML = table;
+        }
+
+        function filterActivity() {
+            const ipFilter = document.getElementById('filterIP').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            const dateFilter = document.getElementById('filterDate').value;
+
+            let filtered = allLogs.filter(log => {
+                const ipMatch = !ipFilter || (log.ip_address || '').toLowerCase().includes(ipFilter);
+                const statusMatch = !statusFilter || log.status === statusFilter;
+                const dateMatch = !dateFilter || new Date(log.timestamp).toLocaleDateString() === new Date(dateFilter).toLocaleDateString();
+                return ipMatch && statusMatch && dateMatch;
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('activityContainer').innerHTML = '<div class="empty-state">No matching login activity</div>';
+                return;
+            }
+
+            const table = `
+                <div class="activity-header">
+                    <h3 style="font-size: 14px; font-weight: 600;">Login History</h3>
+                    <p style="font-size: 12px; color: var(--slate-400);">Showing: ${filtered.length} of ${allLogs.length}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                            <th>IP Address</th>
+                            <th>Device</th>
+                            <th>Location</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(log => `
+                            <tr>
+                                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                                <td>
+                                    <span class="status-badge ${log.status === 'success' ? 'status-success' : 'status-failed'}">
+                                        ${log.status === 'success' ? '✓ Success' : '✗ Failed'}
+                                    </span>
+                                </td>
+                                <td><code style="background: var(--slate-900); padding: 4px 8px; border-radius: 4px;">${log.ip_address || '—'}</code></td>
+                                <td>
+                                    <div class="device-info">
+                                        <span class="device-info-item">${log.details?.device_type || 'Unknown'}</span>
+                                        <span class="device-info-item" style="color: var(--slate-500);">${log.details?.os || 'Unknown OS'}</span>
+                                    </div>
+                                </td>
+                                <td>${log.details?.location || '—'}</td>
+                                <td>${log.details?.reason || 'Normal login'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('activityContainer').innerHTML = table;
+        }
+
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function goToDevices() {
+            window.location.href = 'my-devices.html';
+        }
+
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function logout() {
+            auth.logout();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

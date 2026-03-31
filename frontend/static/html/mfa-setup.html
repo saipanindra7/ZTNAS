@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Mandatory MFA Setup</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        .mfa-setup-container {
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--slate-950) 0%, var(--slate-900) 100%);
+        }
+
+        .mfa-setup-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-8);
+        }
+
+        .mfa-setup-card {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-8);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .setup-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-6);
+            padding-bottom: var(--spacing-6);
+            border-bottom: 1px solid var(--slate-700);
+        }
+
+        .setup-icon {
+            font-size: 32px;
+        }
+
+        .setup-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--slate-100);
+            margin: 0;
+        }
+
+        .setup-title p {
+            font-size: 13px;
+            color: var(--slate-400);
+            margin-top: var(--spacing-1);
+        }
+
+        .setup-warning {
+            background-color: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-6);
+            display: flex;
+            gap: var(--spacing-3);
+        }
+
+        .warning-icon {
+            font-size: 20px;
+            color: var(--yellow-500);
+            flex-shrink: 0;
+        }
+
+        .warning-text {
+            font-size: 13px;
+            color: var(--slate-300);
+        }
+
+        .warning-text strong {
+            color: var(--yellow-400);
+            display: block;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .setup-steps {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-6);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .step {
+            display: flex;
+            gap: var(--spacing-4);
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background-color: var(--brand-600);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate-100);
+            margin: 0 0 var(--spacing-2) 0;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: var(--slate-400);
+            margin: 0;
+        }
+
+        .mfa-methods-selection {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-6);
+        }
+
+        .method-option {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-4);
+            background-color: var(--slate-900);
+            border: 2px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .method-option:hover {
+            background-color: var(--slate-850);
+            border-color: var(--brand-500);
+        }
+
+        .method-option.selected {
+            background-color: var(--brand-600);
+            border-color: var(--brand-500);
+        }
+
+        .method-icon {
+            font-size: 24px;
+            margin-right: var(--spacing-3);
+        }
+
+        .method-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate-100);
+            margin: 0 0 var(--spacing-1) 0;
+        }
+
+        .method-info p {
+            font-size: 12px;
+            color: var(--slate-400);
+            margin: 0;
+        }
+
+        .method-option.selected .method-info h4,
+        .method-option.selected .method-info p {
+            color: white;
+        }
+
+        .setup-actions {
+            display: flex;
+            gap: var(--spacing-3);
+        }
+
+        .btn-setup {
+            flex: 1;
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: var(--brand-600);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            font-size: 14px;
+        }
+
+        .btn-setup:hover {
+            background-color: var(--brand-500);
+        }
+
+        .btn-setup:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-skip {
+            flex: 1;
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: transparent;
+            color: var(--slate-400);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            font-size: 14px;
+        }
+
+        .btn-skip:hover {
+            background-color: var(--slate-900);
+            color: var(--slate-300);
+        }
+
+        .setup-progress {
+            display: flex;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-6);
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--slate-700);
+            transition: all var(--transition-normal);
+        }
+
+        .progress-dot.active {
+            background-color: var(--brand-600);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(37, 99, 235, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--brand-600);
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            color: var(--green-400);
+            text-align: center;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="mfa-setup-container">
+        <div class="mfa-setup-main">
+            <div class="mfa-setup-card">
+                <!-- Header -->
+                <div class="setup-header">
+                    <div class="setup-icon">🔐</div>
+                    <div class="setup-title">
+                        <h1>Secure Your Account</h1>
+                        <p>Mandatory Multi-Factor Authentication</p>
+                    </div>
+                </div>
+
+                <!-- Warning -->
+                <div class="setup-warning">
+                    <div class="warning-icon">⚠️</div>
+                    <div class="warning-text">
+                        <strong>Important:</strong>
+                        Multi-Factor Authentication (MFA) is required to access ZTNAS. Please complete setup to continue.
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="setup-progress" id="setupProgress">
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                </div>
+
+                <!-- Steps -->
+                <div class="setup-steps" id="setupSteps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Choose Your MFA Method</h3>
+                            <p>Select your preferred authentication method</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Setup & Verification</h3>
+                            <p>Follow the setup instructions for your chosen method</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Complete</h3>
+                            <p>Verify your setup and start using ZTNAS</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MFA Methods -->
+                <div class="mfa-methods-selection" id="methodsContainer">
+                    <label class="method-option selected" data-method="totp">
+                        <input type="radio" name="mfa-method" value="totp" checked hidden>
+                        <div class="method-icon">🔐</div>
+                        <div class="method-info">
+                            <h4>Authenticator App</h4>
+                            <p>Google Authenticator, Microsoft Authenticator, etc.</p>
+                        </div>
+                    </label>
+
+                    <label class="method-option" data-method="email">
+                        <input type="radio" name="mfa-method" value="email" hidden>
+                        <div class="method-icon">📧</div>
+                        <div class="method-info">
+                            <h4>Email OTP</h4>
+                            <p>Receive verification code via email</p>
+                        </div>
+                    </label>
+
+                    <label class="method-option" data-method="backup">
+                        <input type="radio" name="mfa-method" value="backup" hidden>
+                        <div class="method-icon">💾</div>
+                        <div class="method-info">
+                            <h4>Backup Codes</h4>
+                            <p>Download one-time backup codes</p>
+                        </div>
+                    </label>
+
+                    <label class="method-option" data-method="picture">
+                        <input type="radio" name="mfa-method" value="picture" hidden>
+                        <div class="method-icon">🖼️</div>
+                        <div class="method-info">
+                            <h4>Picture Password</h4>
+                            <p>Choose image and tap a secret pattern</p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Success Message -->
+                <div class="success-message" id="successMessage">
+                    ✓ MFA Setup Successfully Completed!
+                    <p style="font-size: 12px; margin-top: var(--spacing-2);">Redirecting to dashboard...</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="setup-actions">
+                    <button class="btn-setup" id="setupBtn" onclick="startMFASetup()">
+                        Setup <span id="selectedMethod">Authenticator</span>
+                    </button>
+                    <button class="btn-skip" id="skipBtn" onclick="skipSetupForNow()" style="display: none;">
+                        Skip for Now
+                    </button>
+                </div>
+
+                <p style="font-size: 12px; color: var(--slate-500); text-align: center; margin-top: var(--spacing-4);">
+                    Need help? Contact your administrator
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MFA Setup Modal (will be inserted here) -->
+    <div id="setupModal"></div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        let selectedMethod = 'totp';
+        let currentTotpSecret = null;
+        let currentEmailMethodId = null;
+        let pictureTapPoints = [];
+
+        // Method selection handlers
+        document.querySelectorAll('.method-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+                
+                selectedMethod = this.getAttribute('data-method');
+                
+                // Update button text
+                const methodNames = {
+                    totp: 'Authenticator',
+                    email: 'Email OTP',
+                    backup: 'Backup Codes',
+                    picture: 'Picture Password'
+                };
+                const selectedMethodLabel = document.getElementById('selectedMethod');
+                if (selectedMethodLabel) {
+                    selectedMethodLabel.textContent = methodNames[selectedMethod] || 'MFA';
+                }
+            });
+        });
+
+        async function startMFASetup() {
+            const btn = document.getElementById('setupBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Setting up...';
+
+            try {
+                const token = auth.getToken();
+                if (!token) {
+                    alert('Your login session expired. Please sign in again.');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Check MFA status first
+                const statusRes = await fetch('http://localhost:8000/api/v1/mfa/status', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (statusRes.status === 401) {
+                    alert('Your session is invalid or expired. Please login again.');
+                    auth.logout();
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (!statusRes.ok) {
+                    throw new Error('Failed to check MFA status');
+                }
+
+                const status = await statusRes.json();
+
+                if (selectedMethod === 'totp') {
+                    // Show TOTP setup
+                    await setupTOTP();
+                } else if (selectedMethod === 'email') {
+                    // Show Email OTP setup
+                    await setupEmailOTP();
+                } else if (selectedMethod === 'backup') {
+                    // Show Backup codes
+                    await setupBackupCodes();
+                } else if (selectedMethod === 'picture') {
+                    // Show picture password setup
+                    await setupPicturePassword();
+                }
+            } catch (error) {
+                console.error('Setup error:', error);
+                alert('Failed to start MFA setup. Please refresh and try again.');
+                btn.disabled = false;
+                const selectedSpan = document.getElementById('selectedMethod');
+                if (selectedSpan) {
+                    btn.innerHTML = 'Setup ' + selectedSpan.textContent;
+                } else {
+                    btn.innerHTML = 'Setup MFA';
+                }
+            }
+        }
+
+        async function setupTOTP() {
+            try {
+                const res = await fetch('http://localhost:8000/api/v1/mfa/totp/setup', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to setup TOTP');
+                }
+
+                const data = await res.json();
+                currentTotpSecret = data.secret;
+
+                // Show TOTP setup in modal
+                showTOTPSetupModal(data);
+            } catch (error) {
+                console.error('TOTP setup error:', error);
+                alert('Failed to setup Authenticator. Please try again.');
+            }
+        }
+
+        async function setupEmailOTP() {
+            try {
+                const res = await fetch('http://localhost:8000/api/v1/mfa/email/setup', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to setup Email OTP');
+                }
+
+                const data = await res.json();
+                currentEmailMethodId = data.method_id;
+
+                // Show Email OTP verification modal
+                showEmailOTPModal(data);
+            } catch (error) {
+                console.error('Email OTP setup error:', error);
+                alert('Failed to setup Email OTP. Please try again.');
+            }
+        }
+
+        async function setupBackupCodes() {
+            try {
+                const res = await fetch('http://localhost:8000/api/v1/mfa/backup-codes/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error('Failed to generate backup codes');
+                }
+
+                const data = await res.json();
+                showBackupCodesModal(data.codes || []);
+            } catch (error) {
+                console.error('Backup codes setup error:', error);
+                alert('Failed to generate backup codes. Please try again.');
+            }
+        }
+
+        async function setupPicturePassword() {
+            pictureTapPoints = [];
+            const modal = document.createElement('div');
+            modal.className = 'mfa-container';
+            modal.innerHTML = `
+                <div class="mfa-card">
+                    <h2>🖼️ Setup Picture Password</h2>
+                    <p>Upload an image and choose 3-5 taps in order.</p>
+                    <input type="file" id="pictureFile" accept="image/png,image/jpeg,image/jpg" style="width: 100%; margin: 12px 0;">
+                    <div style="position: relative; border: 1px solid var(--slate-700); border-radius: 8px; overflow: hidden; background: var(--slate-900);">
+                        <img id="picturePreview" alt="Preview" style="max-width: 100%; display: none; cursor: crosshair;">
+                        <div id="pictureTapOverlay" style="position: absolute; inset: 0; pointer-events: none;"></div>
+                    </div>
+                    <p id="tapHint" style="font-size: 12px; color: var(--slate-400); margin: 10px 0;">Upload an image to begin.</p>
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="clearPictureTaps()">Clear Taps</button>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="submitPicturePassword()">Save Pattern</button>
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="closePictureModal()">Back</button>
+                </div>
+            `;
+            document.getElementById('setupModal').appendChild(modal);
+
+            const fileInput = document.getElementById('pictureFile');
+            const preview = document.getElementById('picturePreview');
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                    pictureTapPoints = [];
+                    redrawPictureTaps();
+                    updateTapHint();
+                };
+                reader.readAsDataURL(file);
+            });
+
+            preview.addEventListener('click', (e) => {
+                if (!preview.src || pictureTapPoints.length >= 5) return;
+                const rect = preview.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+                pictureTapPoints.push({ x, y, sequence: pictureTapPoints.length + 1 });
+                redrawPictureTaps();
+                updateTapHint();
+            });
+        }
+
+        function redrawPictureTaps() {
+            const preview = document.getElementById('picturePreview');
+            const overlay = document.getElementById('pictureTapOverlay');
+            if (!preview || !overlay || preview.style.display === 'none') return;
+
+            const rect = preview.getBoundingClientRect();
+            overlay.innerHTML = '';
+            overlay.style.width = `${rect.width}px`;
+            overlay.style.height = `${rect.height}px`;
+            overlay.style.position = 'absolute';
+            overlay.style.left = '0';
+            overlay.style.top = '0';
+
+            pictureTapPoints.forEach((tap, idx) => {
+                const marker = document.createElement('div');
+                marker.style.position = 'absolute';
+                marker.style.left = `${tap.x * rect.width - 12}px`;
+                marker.style.top = `${tap.y * rect.height - 12}px`;
+                marker.style.width = '24px';
+                marker.style.height = '24px';
+                marker.style.borderRadius = '50%';
+                marker.style.background = 'rgba(37, 99, 235, 0.9)';
+                marker.style.color = '#fff';
+                marker.style.fontSize = '12px';
+                marker.style.display = 'flex';
+                marker.style.alignItems = 'center';
+                marker.style.justifyContent = 'center';
+                marker.style.fontWeight = '700';
+                marker.style.border = '2px solid #fff';
+                marker.textContent = String(idx + 1);
+                overlay.appendChild(marker);
+            });
+        }
+
+        function updateTapHint() {
+            const hint = document.getElementById('tapHint');
+            if (!hint) return;
+            if (pictureTapPoints.length < 3) {
+                hint.textContent = `Choose ${3 - pictureTapPoints.length} more tap(s). Minimum 3 required.`;
+            } else if (pictureTapPoints.length < 5) {
+                hint.textContent = `Pattern ready with ${pictureTapPoints.length} taps. You can add up to 5.`;
+            } else {
+                hint.textContent = 'Maximum 5 taps reached. Save pattern or clear.';
+            }
+        }
+
+        function clearPictureTaps() {
+            pictureTapPoints = [];
+            redrawPictureTaps();
+            updateTapHint();
+        }
+
+        async function submitPicturePassword() {
+            try {
+                const fileInput = document.getElementById('pictureFile');
+                const file = fileInput?.files?.[0];
+                if (!file) {
+                    alert('Please upload an image first.');
+                    return;
+                }
+                if (pictureTapPoints.length < 3 || pictureTapPoints.length > 5) {
+                    alert('Please select 3 to 5 taps for your pattern.');
+                    return;
+                }
+
+                const imageDataUrl = await fileToDataURL(file);
+                const base64 = imageDataUrl.split(',')[1];
+                const imageFormat = (file.type || 'image/png').replace('image/', '').toLowerCase();
+
+                const setupRes = await fetch('http://localhost:8000/api/v1/mfa/picture/setup', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image_data: base64,
+                        image_format: imageFormat === 'jpeg' ? 'jpeg' : (imageFormat === 'jpg' ? 'jpg' : 'png')
+                    })
+                });
+
+                if (!setupRes.ok) {
+                    throw new Error('Failed to upload picture');
+                }
+                const setupData = await setupRes.json();
+
+                const defineRes = await fetch('http://localhost:8000/api/v1/mfa/picture/define', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image_hash: setupData.image_hash,
+                        taps: pictureTapPoints,
+                        tolerance_radius: 0.05
+                    })
+                });
+
+                if (!defineRes.ok) {
+                    throw new Error('Failed to save picture pattern');
+                }
+
+                completeSetup();
+            } catch (error) {
+                console.error('Picture password setup error:', error);
+                alert('Failed to setup picture password. Please try again.');
+            }
+        }
+
+        function fileToDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function showBackupCodesModal(codes) {
+            const modal = document.createElement('div');
+            modal.className = 'mfa-container';
+            modal.innerHTML = `
+                <div class="mfa-card">
+                    <h2>💾 Backup Codes</h2>
+                    <p>Save these one-time backup codes securely.</p>
+                    <div style="background: var(--slate-900); border: 1px solid var(--slate-700); border-radius: 8px; padding: 12px; max-height: 220px; overflow: auto; margin: 12px 0;">
+                        ${codes.map(code => `<div style="padding: 6px 0; font-family: monospace; color: var(--slate-200);">${code}</div>`).join('')}
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="completeSetup()">I Saved These Codes</button>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="closeBackupModal()">Back</button>
+                </div>
+            `;
+            document.getElementById('setupModal').appendChild(modal);
+        }
+
+        function closeBackupModal() {
+            document.getElementById('setupModal').innerHTML = '';
+            document.getElementById('setupBtn').disabled = false;
+            document.getElementById('setupBtn').innerHTML = 'Setup Backup Codes';
+        }
+
+        function closePictureModal() {
+            document.getElementById('setupModal').innerHTML = '';
+            document.getElementById('setupBtn').disabled = false;
+            document.getElementById('setupBtn').innerHTML = 'Setup Picture Password';
+        }
+
+        function showTOTPSetupModal(data) {
+            const modal = document.createElement('div');
+            modal.className = 'mfa-container';
+            modal.innerHTML = `
+                <div class="mfa-card">
+                    <h2>🔐 Scan QR Code</h2>
+                    <p>Use your authenticator app to scan this QR code:</p>
+                    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <img src="${data.qr_code_url}" alt="QR Code" style="max-width: 200px;">
+                    </div>
+                    <p style="font-size: 12px; color: var(--slate-400); margin-top: 16px;">
+                        If you can't scan, enter this key manually:
+                    </p>
+                    <code style="display: block; padding: 12px; background: var(--slate-900); border-radius: 6px; margin: 12px 0; word-break: break-all;">
+                        ${data.manual_entry_key}
+                    </code>
+                    <input type="text" id="totpCode" placeholder="Enter 6-digit code" style="width: 100%; margin-top: 16px;" maxlength="6">
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="verifyTOTP()">
+                        Verify 6-Digit Code
+                    </button>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="closeTOTPModal()">
+                        Back
+                    </button>
+                </div>
+            `;
+            document.getElementById('setupModal').appendChild(modal);
+        }
+
+        function showEmailOTPModal(data) {
+            const modal = document.createElement('div');
+            modal.className = 'mfa-container';
+            modal.innerHTML = `
+                <div class="mfa-card">
+                    <h2>📧 Verify Email</h2>
+                    <p>A verification code has been sent to your email.</p>
+                    <p style="font-size: 12px; color: var(--slate-400); margin: 16px 0;">
+                        Enter the 6-digit code below:
+                    </p>
+                    <input type="text" id="emailCode" placeholder="000000" style="width: 100%; font-size: 24px; text-align: center;" maxlength="6">
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" onclick="verifyEmailOTP()">
+                        Verify Code
+                    </button>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="closeEmailModal()">
+                        Back
+                    </button>
+                </div>
+            `;
+            document.getElementById('setupModal').appendChild(modal);
+        }
+
+        async function verifyTOTP() {
+            const code = document.getElementById('totpCode').value.trim();
+            
+            if (!code || code.length !== 6) {
+                alert('Please enter a valid 6-digit code');
+                return;
+            }
+
+            if (!currentTotpSecret) {
+                alert('TOTP setup session expired. Please restart setup.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:8000/api/v1/mfa/totp/enroll?secret=${encodeURIComponent(currentTotpSecret || '')}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ totp_code: code })
+                });
+
+                if (!res.ok) {
+                    throw new Error('Invalid code');
+                }
+
+                // MFA verified!
+                completeSetup();
+            } catch (error) {
+                alert('Invalid code. Please try again.');
+            }
+        }
+
+        async function verifyEmailOTP() {
+            const code = document.getElementById('emailCode').value.trim();
+            
+            if (!code || code.length !== 6) {
+                alert('Please enter a valid 6-digit code');
+                return;
+            }
+
+            if (!currentEmailMethodId) {
+                alert('Email verification session expired. Please restart setup.');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:8000/api/v1/mfa/otp/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        method_id: currentEmailMethodId,
+                        otp_code: code
+                    })
+                });
+
+                if (!res.ok) {
+                    throw new Error('Invalid code');
+                }
+
+                // MFA verified!
+                completeSetup();
+            } catch (error) {
+                alert('Invalid code. Please try again.');
+            }
+        }
+
+        function completeSetup() {
+            const modal = document.getElementById('setupModal');
+            modal.innerHTML = '';
+
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+
+            const setupBtn = document.getElementById('setupBtn');
+            setupBtn.style.display = 'none';
+
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                const role = auth.getUserRole();
+                const dashboardMap = {
+                    admin: '/admin-dashboard.html',
+                    hod: '/dashboard-hod.html',
+                    dean: '/dashboard-hod.html',
+                    faculty: '/dashboard-faculty.html',
+                    student: '/dashboard-student.html'
+                };
+                window.location.href = dashboardMap[role] || '/dashboard-student.html';
+            }, 2000);
+        }
+
+        function closeTOTPModal() {
+            document.getElementById('setupModal').innerHTML = '';
+            document.getElementById('setupBtn').disabled = false;
+            document.getElementById('setupBtn').innerHTML = 'Setup Authenticator';
+        }
+
+        function closeEmailModal() {
+            document.getElementById('setupModal').innerHTML = '';
+            document.getElementById('setupBtn').disabled = false;
+            document.getElementById('setupBtn').innerHTML = 'Setup Email OTP';
+        }
+
+        function skipSetupForNow() {
+            // In production, this might show a warning or not be available
+            alert('MFA setup is mandatory to use ZTNAS. Please complete the setup.');
+        }
+
+        // Check if user already has MFA
+        window.addEventListener('load', async () => {
+            try {
+                const token = auth.getToken();
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const res = await fetch('http://localhost:8000/api/v1/mfa/status', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (res.status === 401) {
+                    auth.logout();
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (res.ok) {
+                    const status = await res.json();
+                    if (!status.mfa_required) {
+                        // User already has MFA, redirect to dashboard
+                        const role = auth.getUserRole();
+                        const dashboardMap = {
+                            admin: '/admin-dashboard.html',
+                            hod: '/dashboard-hod.html',
+                            dean: '/dashboard-hod.html',
+                            faculty: '/dashboard-faculty.html',
+                            student: '/dashboard-student.html'
+                        };
+                        window.location.href = dashboardMap[role] || '/dashboard-student.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking MFA status:', error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS Dashboard</title>
+    <link rel="stylesheet" href="../css/theme.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">🔐</div>
+                <div class="logo">ZTNAS</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-view="users-devices">
+                    <span class="nav-icon">👥</span>
+                    <span>Users & Devices</span>
+                </button>
+                <button class="nav-item" data-view="policies">
+                    <span class="nav-icon">🔒</span>
+                    <span>Access Policies</span>
+                </button>
+                <button class="nav-item" data-view="logs">
+                    <span class="nav-icon">📋</span>
+                    <span>Audit Logs</span>
+                </button>
+                <button class="nav-item" data-view="profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>ZTNAS v1.0.0</p>
+                <p>© 2024 SecureCorp</p>
+                <button class="btn btn-secondary btn-sm" onclick="logout()" style="width: 100%; margin-top: var(--spacing-3);">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Loading...</span>
+                        <div class="avatar" id="avatar">👤</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Dashboard Overview Section -->
+                <section id="dashboard-view" class="view active">
+                    <div class="grid grid-4" style="margin-bottom: var(--spacing-8);">
+                        <div class="metric-card">
+                            <div class="metric-icon" style="color: var(--green-500);">📊</div>
+                            <div class="metric-content">
+                                <div class="metric-label">Active Users</div>
+                                <div class="metric-value" id="stat-active-users">0</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon" style="color: var(--brand-500);">🔒</div>
+                            <div class="metric-content">
+                                <div class="metric-label">MFA Enrolled</div>
+                                <div class="metric-value" id="stat-mfa-enrolled">0</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon" style="color: var(--yellow-500);">⚠️</div>
+                            <div class="metric-content">
+                                <div class="metric-label">Risk Events</div>
+                                <div class="metric-value" id="stat-risk-events">0</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon" style="color: var(--red-500);">🚨</div>
+                            <div class="metric-content">
+                                <div class="metric-label">Anomalies</div>
+                                <div class="metric-value" id="stat-anomalies">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Access Logs -->
+                    <div class="card" style="margin-bottom: var(--spacing-8);">
+                        <div class="card-header">
+                            📋 Recent Access Logs
+                        </div>
+                        <div id="recent-logs" style="max-height: 400px; overflow-y: auto;">
+                            <p style="text-align: center; color: var(--slate-400); padding: var(--spacing-6);">Loading...</p>
+                        </div>
+                    </div>
+
+                    <!-- Risk Timeline -->
+                    <div class="card">
+                        <div class="card-header">
+                            📈 Risk Timeline
+                        </div>
+                        <div id="risk-timeline" style="max-height: 300px; overflow-y: auto;">
+                            <p style="text-align: center; color: var(--slate-400); padding: var(--spacing-6);">Loading...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Users & Devices Section -->
+                <section id="users-devices-view" class="view">
+                    <div class="card" style="margin-bottom: var(--spacing-6);">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>👥 Users Management</span>
+                            <button class="btn btn-primary btn-sm" onclick="showAddUserModal()">Add User</button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>MFA Status</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: var(--spacing-6); color: var(--slate-400);">Loading users...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">📱 Devices</div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Device Name</th>
+                                        <th>Owner</th>
+                                        <th>OS</th>
+                                        <th>Trust Status</th>
+                                        <th>Last Seen</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="devices-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: var(--spacing-6); color: var(--slate-400);">Loading devices...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Access Policies Section -->
+                <section id="policies-view" class="view">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>🔒 Access Control Policies</span>
+                            <button class="btn btn-primary btn-sm" onclick="showAddPolicyModal()">Create Policy</button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Policy Name</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Last Modified</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="policies-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: var(--spacing-6); color: var(--slate-400);">Loading policies...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Audit Logs Section -->
+                <section id="logs-view" class="view">
+                    <div class="card">
+                        <div class="card-header">📋 System Audit Logs</div>
+                        <div style="display: flex; gap: var(--spacing-3); margin-bottom: var(--spacing-4);">
+                            <input type="text" id="log-search" placeholder="Search logs..." style="flex: 1;">
+                            <select id="log-filter" style="width: 150px;">
+                                <option value="">All Actions</option>
+                                <option value="login">Login</option>
+                                <option value="access">Access</option>
+                                <option value="policy">Policy</option>
+                                <option value="error">Error</option>
+                            </select>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Resource</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logs-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: var(--spacing-6); color: var(--slate-400);">Loading logs...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- User Profile Section -->
+                <section id="profile-view" class="view">
+                    <div class="grid grid-2" style="max-width: 800px;">
+                        <div class="card">
+                            <div class="card-header">👤 Profile Information</div>
+                            <div style="display: flex; flex-direction: column; gap: var(--spacing-4);">
+                                <div>
+                                    <label style="display: block; color: var(--slate-400); font-size: 12px; margin-bottom: var(--spacing-2);">Full Name</label>
+                                    <input type="text" id="profile-name" readonly style="background-color: var(--slate-900);">
+                                </div>
+                                <div>
+                                    <label style="display: block; color: var(--slate-400); font-size: 12px; margin-bottom: var(--spacing-2);">Email</label>
+                                    <input type="email" id="profile-email" readonly style="background-color: var(--slate-900);">
+                                </div>
+                                <div>
+                                    <label style="display: block; color: var(--slate-400); font-size: 12px; margin-bottom: var(--spacing-2);">Role</label>
+                                    <input type="text" id="profile-role" readonly style="background-color: var(--slate-900);">
+                                </div>
+                                <div>
+                                    <label style="display: block; color: var(--slate-400); font-size: 12px; margin-bottom: var(--spacing-2);">Account Status</label>
+                                    <div style="display: flex; align-items: center; gap: var(--spacing-2);">
+                                        <div class="status-dot active"></div>
+                                        <span>Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">🔐 Security Settings</div>
+                            <div style="display: flex; flex-direction: column; gap: var(--spacing-4);">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-3);">
+                                        <span>Multi-Factor Authentication</span>
+                                        <span id="profile-mfa-status" class="badge badge-success">Enabled</span>
+                                    </div>
+                                    <p style="font-size: 12px; color: var(--slate-400);">Your account is protected with MFA.</p>
+                                </div>
+                                <button class="btn btn-secondary" style="width: 100%;">Change Password</button>
+                                <button class="btn btn-danger" style="width: 100%;">Logout All Sessions</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Adding User -->
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span>Add New User</span>
+                <button class="close-btn" onclick="closeModal('addUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select required>
+                            <option>User</option>
+                            <option>Admin</option>
+                            <option>Manager</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+                <button class="btn btn-primary">Add User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Policy -->
+    <div class="modal-overlay" id="addPolicyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span>Create New Policy</span>
+                <button class="close-btn" onclick="closeModal('addPolicyModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addPolicyForm">
+                    <div class="form-group">
+                        <label>Policy Name</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Policy Type</label>
+                        <select required>
+                            <option>Access Control</option>
+                            <option>Risk-Based</option>
+                            <option>Time-Based</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addPolicyModal')">Cancel</button>
+                <button class="btn btn-primary">Create Policy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const view = item.getAttribute('data-view');
+                switchView(view);
+            });
+        });
+
+        function switchView(view) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+            // Update title
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'users-devices': 'Users & Devices Management',
+                'policies': 'Access Control Policies',
+                'logs': 'System Audit Logs',
+                'profile': 'User Profile'
+            };
+            document.getElementById('page-title').textContent = titles[view];
+
+            // Show/hide sections
+            document.querySelectorAll('.view').forEach(section => section.classList.remove('active'));
+            document.getElementById(`${view}-view`).classList.add('active');
+        }
+
+        // Modal functions
+        function showAddUserModal() {
+            document.getElementById('addUserModal').classList.add('active');
+        }
+
+        function showAddPolicyModal() {
+            document.getElementById('addPolicyModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+
+        // Initialize
+        function initDashboard() {
+            // Get user info from localStorage
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('user-name').textContent = user.name || 'User';
+            document.getElementById('profile-name').value = user.name || '';
+            document.getElementById('profile-email').value = user.email || '';
+            document.getElementById('profile-role').value = user.role || '';
+
+            // Load dashboard data
+            loadDashboardData();
+        }
+
+        async function loadDashboardData() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:8000/api/v1/dashboard', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('stat-active-users').textContent = data.activeUsers || 0;
+                    document.getElementById('stat-mfa-enrolled').textContent = data.mfaEnrolled || 0;
+                    document.getElementById('stat-risk-events').textContent = data.riskEvents || 0;
+                    document.getElementById('stat-anomalies').textContent = data.anomalies || 0;
+                }
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+            }
+        }
+
+        // Check authentication
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+
+        initDashboard();
+    </script>
+</body>
+</html>

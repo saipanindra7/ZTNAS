@@ -1,0 +1,5 @@
+{
+  "name": "ZTNAS",
+  "description": "A dashboard for ZTNAS, visualizing real-time access monitoring, device trust, and policy enforcement.",
+  "requestFramePermissions": []
+}

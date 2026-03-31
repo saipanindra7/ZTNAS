@@ -1,0 +1,32 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.1
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-jose==3.3.0
+passlib==1.7.4
+bcrypt==4.1.1
+python-multipart==0.0.6
+PyJWT==2.12.1
+pyotp==2.9.0
+qrcode==8.2
+Pillow==12.1.1
+httpx==0.25.2
+email-validator==2.1.0
+webauthn==0.4.7
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Production-Ready Features
+slowapi==0.1.9                 # Rate limiting
+python-json-logger==2.0.7     # Structured logging
+cryptography==41.0.7          # Enhanced security
+boto3==1.34.0                 # AWS Secrets Manager
+prometheus-client==0.19.0     # Metrics & monitoring
+APScheduler==3.10.4           # Scheduled tasks (backups)
+aiosmtplib==3.0.1             # Async email
+twilio==8.10.0                # SMS integration
+structlog==23.2.0             # Structured logging
+python-multipart==0.0.6

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Factor Authentication Setup - ZTNAS</title>
+    <link rel="stylesheet" href="../css/mfa.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-logo">ZTNAS MFA</div>
+                <div class="nav-links">
+                    <a href="index.html">Back to Dashboard</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="mfa-container">
+            <section class="mfa-header">
+                <h1>Multi-Factor Authentication Setup</h1>
+                <p>Enhance your account security with additional authentication methods</p>
+            </section>
+
+            <!-- MFA Methods Selection -->
+            <section class="mfa-methods">
+                <div class="methods-grid">
+                    <!-- TOTP Method -->
+                    <div class="method-card" id="totp-card">
+                        <div class="method-icon">🔐</div>
+                        <h3>Authenticator App</h3>
+                        <p>Use Google Authenticator, Microsoft Authenticator, or similar apps</p>
+                        <button class="btn-primary" onclick="selectMethod('totp')">Setup TOTP</button>
+                    </div>
+
+                    <!-- SMS OTP Method -->
+                    <div class="method-card" id="sms-card">
+                        <div class="method-icon">📱</div>
+                        <h3>SMS Code</h3>
+                        <p>Receive one-time codes via SMS</p>
+                        <button class="btn-primary" onclick="selectMethod('sms')">Setup SMS OTP</button>
+                    </div>
+
+                    <!-- Email OTP Method -->
+                    <div class="method-card" id="email-card">
+                        <div class="method-icon">📧</div>
+                        <h3>Email Code</h3>
+                        <p>Receive one-time codes via email</p>
+                        <button class="btn-primary" onclick="selectMethod('email')">Setup Email OTP</button>
+                    </div>
+
+                    <!-- Picture Password Method -->
+                    <div class="method-card" id="picture-card">
+                        <div class="method-icon">🖼️</div>
+                        <h3>Picture Password</h3>
+                        <p>Tap specific points on an image to authenticate</p>
+                        <button class="btn-primary" onclick="selectMethod('picture')">Setup Picture Password</button>
+                    </div>
+
+                    <!-- FIDO2 Method -->
+                    <div class="method-card" id="fido2-card">
+                        <div class="method-icon">🔑</div>
+                        <h3>Hardware Token (FIDO2)</h3>
+                        <p>Use a security key like YubiKey</p>
+                        <button class="btn-primary" onclick="selectMethod('fido2')">Setup FIDO2</button>
+                    </div>
+
+                    <!-- Backup Codes Method -->
+                    <div class="method-card" id="backup-card">
+                        <div class="method-icon">📋</div>
+                        <h3>Backup Codes</h3>
+                        <p>Save recovery codes for emergency access</p>
+                        <button class="btn-primary" onclick="selectMethod('backup')">Generate Backup Codes</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Setup Panels -->
+            
+            <!-- TOTP Setup Panel -->
+            <div id="totp-setup" class="setup-panel hidden">
+                <div class="setup-header">
+                    <h2>Setup Authenticator App</h2>
+                    <button class="btn-close" onclick="closeSetup()">×</button>
+                </div>
+                <div class="setup-content">
+                    <div class="setup-step">
+                        <h3>Step 1: Scan QR Code</h3>
+                        <p>Use Google Authenticator, Microsoft Authenticator, or Authy to scan this code:</p>
+                        <div id="totp-qr" class="qr-container"></div>
+                        <p class="text-muted">Or enter this code manually: <code id="totp-secret" class="secret-code"></code></p>
+                    </div>
+                    <div class="setup-step">
+                        <h3>Step 2: Verify Code</h3>
+                        <p>Enter the 6-digit code from your authenticator app:</p>
+                        <input type="text" id="totp-code" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]{6}">
+                        <button class="btn-primary" onclick="verifyTOTP()">Verify & Enable</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMS OTP Setup Panel -->
+            <div id="sms-setup" class="setup-panel hidden">
+                <div class="setup-header">
+                    <h2>Setup SMS Code Authentication</h2>
+                    <button class="btn-close" onclick="closeSetup()">×</button>
+                </div>
+                <div class="setup-content">
+                    <div class="setup-step">
+                        <h3>Enter Your Phone Number</h3>
+                        <input type="tel" id="sms-phone" class="phone-input" placeholder="+1234567890">
+                        <button class="btn-primary" onclick="startSMSOTP()">Send Verification Code</button>
+                    </div>
+                    <div id="sms-verify-step" class="setup-step hidden">
+                        <h3>Enter Verification Code</h3>
+                        <p>We've sent a code to your phone:</p>
+                        <input type="text" id="sms-code" class="code-input" placeholder="000000" maxlength="6">
+                        <button class="btn-primary" onclick="verifySMSOTP()">Verify & Enable</button>
+                        <button class="btn-secondary" onclick="resendSMSOTP()">Resend Code</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email OTP Setup Panel -->
+            <div id="email-setup" class="setup-panel hidden">
+                <div class="setup-header">
+                    <h2>Setup Email Code Authentication</h2>
+                    <button class="btn-close" onclick="closeSetup()">×</button>
+                </div>
+                <div class="setup-content">
+                    <div class="setup-step">
+                        <h3>Verification Email</h3>
+                        <p>We'll send a verification code to your registered email.</p>
+                        <button class="btn-primary" onclick="startEmailOTP()">Send Verification Code</button>
+                    </div>
+                    <div id="email-verify-step" class="setup-step hidden">
+                        <h3>Enter Verification Code</h3>
+                        <p>Check your email for the code:</p>
+                        <input type="text" id="email-code" class="code-input" placeholder="000000" maxlength="6">
+                        <button class="btn-primary" onclick="verifyEmailOTP()">Verify & Enable</button>
+                        <button class="btn-secondary" onclick="resendEmailOTP()">Resend Code</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Picture Password Setup Panel -->
+            <div id="picture-setup" class="setup-panel hidden">
+                <div class="setup-header">
+                    <h2>Setup Picture Password</h2>
+                    <button class="btn-close" onclick="closeSetup()">×</button>
+                </div>
+                <div class="setup-content">
+                    <!-- Step 1: Upload Image -->
+                    <div id="picture-upload-step" class="setup-step">
+                        <h3>Step 1: Upload Your Image</h3>
+                        <p>Choose an image you'll use for authentication (JPG, PNG):</p>
+                        <div class="image-upload-area" onclick="document.getElementById('picture-input').click()">
+                            <div class="upload-icon">📷</div>
+                            <p>Click to upload or drag and drop</p>
+                            <p class="text-muted">JPG, PNG (max 5MB)</p>
+                        </div>
+                        <input type="file" id="picture-input" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+                        <div id="image-preview" class="hidden"></div>
+                    </div>
+
+                    <!-- Step 2: Define Tap Points -->
+                    <div id="picture-taps-step" class="setup-step hidden">
+                        <h3>Step 2: Define Your Tap Pattern</h3>
+                        <p>Tap 3-5 specific points on your image in order. You'll need to repeat this exact pattern to authenticate.</p>
+                        <div class="picture-canvas-container">
+                            <canvas id="picture-canvas"></canvas>
+                            <div id="tap-instructions"></div>
+                        </div>
+                        <div class="tap-counter">
+                            Taps recorded: <span id="tap-count">0</span>/5
+                        </div>
+                        <button class="btn-secondary" onclick="resetPictureTaps()">Clear Taps</button>
+                        <button class="btn-primary" id="confirm-taps-btn" onclick="confirmPicturePassword()" disabled>Confirm Pattern</button>
+                    </div>
+
+                    <!-- Step 3: Verify Pattern -->
+                    <div id="picture-verify-step" class="setup-step hidden">
+                        <h3>Step 3: Verify Your Pattern</h3>
+                        <p>Tap the same points on your image to verify the pattern:</p>
+                        <div class="picture-canvas-container">
+                            <canvas id="picture-verify-canvas"></canvas>
+                        </div>
+                        <div class="tap-counter">
+                            Taps recorded: <span id="verify-tap-count">0</span>/5
+                        </div>
+                        <button class="btn-secondary" onclick="resetPictureVerifyTaps()">Clear Taps</button>
+                        <button class="btn-primary" onclick="verifyPicturePassword()">Verify & Enable</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FIDO2 Setup Panel -->
+            <div id="fido2-setup" class="setup-panel hidden">
+                <div class="setup-header">
+                    <h2>Setup Hardware Security Key</h2>
+                    <button class="btn-close" onclick="closeSetup()">×</button>
+                </div>
+                <div class="setup-content">
+                    <div class="setup-step">
+                        <h3>Device Name</h3>
+                        <p>Give your security key a name for future reference:</p>
+                        <input type="text" id="fido2-device-name" placeholder="My YubiKey" class="input-field">
+                        <button class="btn-primary" onclick="registerFIDO2()">Register Security Key</button>
+                    </div>
+                    <div id="fido2-prompt" class="setup-step hidden">
+                        <p class="info-box">Please insert your security key and follow the on-screen prompts to complete registration.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup Codes Panel -->
+            <div id="backup-setup" class="setup-panel hidden">
+                <div class="setup-header">
+                    <h2>Generate Backup Codes</h2>
+                    <button class="btn-close" onclick="closeSetup()">×</button>
+                </div>
+                <div class="setup-content">
+                    <div class="setup-step">
+                        <h3>Your Backup Codes</h3>
+                        <p class="warning">Save these codes in a safe place. You can use them to access your account if you lose access to your MFA devices.</p>
+                        <div id="backup-codes-display" class="backup-codes-list"></div>
+                        <button class="btn-secondary" onclick="copyBackupCodes()">Copy Codes</button>
+                        <button class="btn-secondary" onclick="downloadBackupCodes()">Download as File</button>
+                        <button class="btn-primary" onclick="confirmBackupCodes()">I've Saved My Codes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current MFA Methods -->
+            <section class="current-methods">
+                <h2>Your Active MFA Methods</h2>
+                <div id="methods-list" class="methods-list">
+                    <p class="text-muted">No MFA methods enabled yet</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/mfa.js"></script>
+</body>
+</html>

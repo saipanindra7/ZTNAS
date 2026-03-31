@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - User Profile</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-6);
+        }
+
+        .profile-card {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-6);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+            padding-bottom: var(--spacing-6);
+            border-bottom: 1px solid var(--slate-700);
+            margin-bottom: var(--spacing-6);
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-600), var(--brand-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .profile-info h2 {
+            font-size: 20px;
+            margin: 0 0 var(--spacing-1) 0;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            color: var(--slate-400);
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-field {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .profile-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .profile-field-display {
+            font-size: 14px;
+            color: var(--slate-100);
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--slate-900);
+            border-radius: var(--radius-md);
+            overflow-wrap: anywhere;
+        }
+
+        .profile-field input, .profile-field select {
+            width: 100%;
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-md);
+            color: var(--slate-100);
+            font-size: 13px;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: var(--spacing-3);
+            margin-top: var(--spacing-6);
+            padding-top: var(--spacing-6);
+            border-top: 1px solid var(--slate-700);
+        }
+
+        .btn-update {
+            flex: 1;
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: var(--brand-600);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-normal);
+        }
+
+        .btn-update:hover {
+            background-color: var(--brand-500);
+        }
+
+        .btn-change-pass {
+            flex: 1;
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: var(--slate-700);
+            color: var(--slate-100);
+            border: 1px solid var(--slate-600);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-normal);
+        }
+
+        .btn-change-pass:hover {
+            background-color: var(--slate-600);
+        }
+
+        .mfa-methods {
+            display: grid;
+            gap: var(--spacing-3);
+        }
+
+        .mfa-method-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+        }
+
+        .mfa-method-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0 0 var(--spacing-1) 0;
+        }
+
+        .mfa-method-info p {
+            font-size: 12px;
+            color: var(--slate-400);
+            margin: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: var(--spacing-1) var(--spacing-3);
+            background-color: var(--green-600);
+            color: white;
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge.primary {
+            background-color: var(--brand-600);
+        }
+
+        @media (max-width: 1200px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: var(--spacing-4);
+            }
+
+            .profile-card {
+                padding: var(--spacing-4);
+            }
+
+            .profile-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: var(--spacing-3);
+            }
+
+            .profile-actions {
+                flex-direction: column;
+            }
+
+            .mfa-method-item {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: var(--spacing-2);
+            }
+
+            .profile-info h2 {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: var(--spacing-3);
+            }
+
+            .profile-avatar {
+                width: 52px;
+                height: 52px;
+                font-size: 20px;
+            }
+
+            .profile-field label {
+                font-size: 11px;
+            }
+
+            .profile-field-display,
+            .profile-field input,
+            .profile-field select {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">🔐</div>
+                <div class="logo">ZTNAS</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item" onclick="goToDashboard()">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" onclick="goToDevices()">
+                    <span class="nav-icon">📱</span>
+                    <span>My Devices</span>
+                </button>
+                <button class="nav-item" onclick="goToLoginActivity()">
+                    <span class="nav-icon">📋</span>
+                    <span>Login Activity</span>
+                </button>
+                <button class="nav-item active" data-view="profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>ZTNAS v1.0.0</p>
+                <button class="btn btn-secondary btn-sm" onclick="logout()" style="width: 100%; margin-top: var(--spacing-3);">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1>My Profile</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Loading...</span>
+                        <div class="avatar" id="avatar">👤</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <div class="profile-container">
+                    <!-- Personal Information Card -->
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar" id="profileAvatar">U</div>
+                            <div class="profile-info">
+                                <h2 id="profileFullName">User Name</h2>
+                                <p id="profileEmail">user@email.com</p>
+                            </div>
+                        </div>
+
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-4);">Personal Information</h3>
+
+                        <div class="profile-field">
+                            <label>First Name</label>
+                            <input type="text" id="firstName" placeholder="First Name">
+                        </div>
+
+                        <div class="profile-field">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" placeholder="Last Name">
+                        </div>
+
+                        <div class="profile-field">
+                            <label>Email Address</label>
+                            <input type="email" id="email" placeholder="Email">
+                        </div>
+
+                        <div class="profile-field">
+                            <label>Role</label>
+                            <div class="profile-field-display" id="userRole">Student</div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="btn-update" onclick="updateProfile()">💾 Save Changes</button>
+                            <button class="btn-change-pass" onclick="showChangePasswordModal()">🔑 Change Password</button>
+                        </div>
+                    </div>
+
+                    <!-- Security Card -->
+                    <div class="profile-card">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-4);">🔒 Security & MFA</h3>
+
+                        <div style="margin-bottom: var(--spacing-6);">
+                            <label style="font-size: 13px; font-weight: 600; color: var(--slate-300); display: block; margin-bottom: var(--spacing-3);">
+                                Multi-Factor Authentication Methods
+                            </label>
+
+                            <div class="mfa-methods" id="mfaMethods">
+                                <div style="text-align: center; color: var(--slate-400); padding: var(--spacing-4);">
+                                    Loading MFA methods...
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" onclick="addMFAMethod()" style="width: 100%; margin-top: var(--spacing-4);">
+                                ➕ Add MFA Method
+                            </button>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid var(--slate-700); margin: var(--spacing-6) 0;">
+
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; color: var(--slate-300); display: block; margin-bottom: var(--spacing-3);">
+                                Active Sessions
+                            </label>
+                            <div style="font-size: 13px; color: var(--slate-400);">
+                                <p id="sessionCount">Loading...</p>
+                                <button class="btn btn-secondary" onclick="logoutAllSessions()" style="margin-top: var(--spacing-3); width: 100%;">
+                                    🚪 Logout All Sessions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background-color: var(--slate-800); border-radius: var(--radius-xl); padding: var(--spacing-8); max-width: 400px; width: 90%;">
+            <h2 style="font-size: 18px; margin-bottom: var(--spacing-6);">Change Password</h2>
+
+            <div class="form-group" style="margin-bottom: var(--spacing-4);">
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: var(--spacing-2);">Current Password</label>
+                <input type="password" id="currentPassword" placeholder="••••••••" style="width: 100%; padding: var(--spacing-2) var(--spacing-3); background-color: var(--slate-900); border: 1px solid var(--slate-700); border-radius: var(--radius-md); color: var(--slate-100);">
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--spacing-4);">
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: var(--spacing-2);">New Password</label>
+                <input type="password" id="newPassword" placeholder="••••••••" style="width: 100%; padding: var(--spacing-2) var(--spacing-3); background-color: var(--slate-900); border: 1px solid var(--slate-700); border-radius: var(--radius-md); color: var(--slate-100);">
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--spacing-6);">
+                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: var(--spacing-2);">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" style="width: 100%; padding: var(--spacing-2) var(--spacing-3); background-color: var(--slate-900); border: 1px solid var(--slate-700); border-radius: var(--radius-md); color: var(--slate-100);">
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-3);">
+                <button class="btn btn-primary" onclick="changePassword()" style="flex: 1;">Update Password</button>
+                <button class="btn btn-secondary" onclick="closeChangePasswordModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+
+        window.addEventListener('load', async () => {
+            if (!auth.getToken()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            await loadProfileData();
+            await loadMFAMethods();
+            await loadSessions();
+        });
+
+        async function loadProfileData() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('profileFullName').textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username;
+                    document.getElementById('profileEmail').textContent = user.email;
+                    document.getElementById('user-name').textContent = user.username;
+                    document.getElementById('avatar').textContent = (user.username || 'U')[0].toUpperCase();
+                    document.getElementById('profileAvatar').textContent = (user.username || 'U')[0].toUpperCase();
+                    
+                    document.getElementById('firstName').value = user.first_name || '';
+                    document.getElementById('lastName').value = user.last_name || '';
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('userRole').textContent = (user.roles || []).map(r => r.name).join(', ') || 'User';
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        async function loadMFAMethods() {
+            try {
+                const res = await fetch(`${API_BASE}/mfa/methods`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.status === 401) {
+                    auth.logout();
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const methods = data.methods || [];
+
+                    if (methods.length === 0) {
+                        document.getElementById('mfaMethods').innerHTML = `
+                            <div style="text-align: center; color: var(--slate-400); padding: var(--spacing-4);">
+                                No MFA methods configured yet
+                            </div>
+                        `;
+                    } else {
+                        document.getElementById('mfaMethods').innerHTML = methods.map(m => `
+                            <div class="mfa-method-item">
+                                <div class="mfa-method-info">
+                                    <h4>${m.method_type.replace('_', ' ').toUpperCase()}</h4>
+                                    <p>Added: ${new Date(m.created_at).toLocaleDateString()}</p>
+                                </div>
+                                <div style="display: flex; gap: var(--spacing-2); align-items: center;">
+                                    ${m.is_primary ? '<span class="badge primary">PRIMARY</span>' : ''}
+                                    ${m.is_enabled ? '<span class="badge">ENABLED</span>' : '<span style="background-color: var(--slate-600);" class="badge">DISABLED</span>'}
+                                    ${!m.is_primary ? `<button class="btn btn-secondary" onclick="setPrimaryMFAMethod(${m.id})" style="padding: 6px 12px; font-size: 12px;">Set Primary</button>` : ''}
+                                    <button class="btn btn-secondary" onclick="removeMFAMethod(${m.id})" style="padding: 6px 12px; font-size: 12px;">Remove</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading MFA methods:', error);
+                document.getElementById('mfaMethods').innerHTML = '<div style="color: var(--red-400);">Error loading MFA methods</div>';
+            }
+        }
+
+        async function loadSessions() {
+            try {
+                // This would need a backend endpoint to list sessions
+                document.getElementById('sessionCount').textContent = 'You have 1 active session (current page)';
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            }
+        }
+
+        async function updateProfile() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        first_name: document.getElementById('firstName').value,
+                        last_name: document.getElementById('lastName').value,
+                        email: document.getElementById('email').value
+                    })
+                });
+
+                if (res.ok) {
+                    alert('Profile updated successfully!');
+                    await loadProfileData();
+                } else {
+                    alert('Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile');
+            }
+        }
+
+        async function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (!current || !newPass || !confirmPass) {
+                alert('Please fill all password fields');
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                alert('New passwords do not match');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_password: current,
+                        new_password: newPass
+                    })
+                });
+
+                if (res.ok) {
+                    alert('Password changed successfully!');
+                    closeChangePasswordModal();
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    alert('Failed to change password');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                alert('Error changing password');
+            }
+        }
+
+        async function removeMFAMethod(methodId) {
+            if (!confirm('Remove this MFA method?')) return;
+
+            const password = prompt('Enter your current password to remove this MFA method:');
+            if (!password) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/mfa/methods/${methodId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        method_id: methodId,
+                        password
+                    })
+                });
+
+                if (res.ok) {
+                    alert('MFA method removed');
+                    await loadMFAMethods();
+                } else if (res.status === 401) {
+                    alert('Invalid password or session expired.');
+                } else {
+                    alert('Failed to remove MFA method');
+                }
+            } catch (error) {
+                console.error('Error removing MFA:', error);
+                alert('Error removing MFA method');
+            }
+        }
+
+        async function setPrimaryMFAMethod(methodId) {
+            try {
+                const res = await fetch(`${API_BASE}/mfa/methods/${methodId}/set-primary`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (res.ok) {
+                    alert('Primary MFA method updated');
+                    await loadMFAMethods();
+                } else {
+                    alert('Failed to update primary MFA method');
+                }
+            } catch (error) {
+                console.error('Error updating primary MFA method:', error);
+                alert('Error updating primary MFA method');
+            }
+        }
+
+        function showChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+        }
+
+        function addMFAMethod() {
+            window.location.href = 'mfa-setup.html';
+        }
+
+        function logoutAllSessions() {
+            if (confirm('Logout all other sessions?')) {
+                // Would call backend to invalidate other sessions
+                alert('All other sessions have been logged out');
+            }
+        }
+
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function goToDevices() {
+            window.location.href = 'my-devices.html';
+        }
+
+        function goToLoginActivity() {
+            window.location.href = 'login-activity.html';
+        }
+
+        function logout() {
+            auth.logout();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

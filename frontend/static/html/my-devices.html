@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - My Devices</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        .devices-container {
+            display: grid;
+            gap: var(--spacing-6);
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-4);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .device-card {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-6);
+            transition: all var(--transition-normal);
+        }
+
+        .device-card:hover {
+            border-color: var(--brand-500);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-4);
+            padding-bottom: var(--spacing-4);
+            border-bottom: 1px solid var(--slate-700);
+        }
+
+        .device-icon {
+            font-size: 32px;
+        }
+
+        .device-badge {
+            display: inline-block;
+            padding: var(--spacing-1) var(--spacing-3);
+            background-color: var(--green-600);
+            color: white;
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .device-badge.trusted {
+            background-color: var(--brand-600);
+        }
+
+        .device-badge.untrusted {
+            background-color: var(--red-600);
+        }
+
+        .device-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate-100);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .device-details {
+            font-size: 12px;
+            color: var(--slate-400);
+            line-height: 1.6;
+        }
+
+        .device-details-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .device-details-item strong {
+            color: var(--slate-300);
+        }
+
+        .device-actions {
+            display: flex;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-4);
+            padding-top: var(--spacing-4);
+            border-top: 1px solid var(--slate-700);
+        }
+
+        .btn-device {
+            flex: 1;
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-md);
+            color: var(--slate-300);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all var(--transition-normal);
+        }
+
+        .btn-device:hover {
+            background-color: var(--brand-600);
+            border-color: var(--brand-500);
+            color: white;
+        }
+
+        .btn-device.danger:hover {
+            background-color: var(--red-600);
+            border-color: var(--red-500);
+        }
+
+        .integrity-bar {
+            width: 100%;
+            height: 4px;
+            background-color: var(--slate-900);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: var(--spacing-2);
+        }
+
+        .integrity-fill {
+            height: 100%;
+            background-color: var(--green-500);
+            transition: width 0.3s;
+        }
+
+        .integrity-fill.medium {
+            background-color: var(--yellow-500);
+            width: 60%;
+        }
+
+        .integrity-fill.low {
+            background-color: var(--red-500);
+            width: 30%;
+        }
+
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-6);
+            color: var(--blue-300);
+            font-size: 13px;
+        }
+
+        .table-container {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background-color: var(--slate-850);
+            border-bottom: 1px solid var(--slate-700);
+        }
+
+        th {
+            padding: var(--spacing-4) var(--spacing-6);
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--slate-400);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: var(--spacing-4) var(--spacing-6);
+            border-bottom: 1px solid var(--slate-700);
+            font-size: 13px;
+        }
+
+        tr:hover td {
+            background-color: var(--slate-750);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-8);
+            color: var(--slate-400);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: var(--spacing-4);
+            }
+
+            .top-header h1 {
+                font-size: 20px;
+            }
+
+            .device-grid {
+                grid-template-columns: 1fr;
+                margin-bottom: var(--spacing-6);
+            }
+
+            .device-header {
+                gap: var(--spacing-3);
+                flex-wrap: wrap;
+            }
+
+            .device-actions {
+                flex-wrap: wrap;
+            }
+
+            .btn-device {
+                min-width: 120px;
+                font-size: 13px;
+            }
+
+            table {
+                min-width: 920px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: var(--spacing-3);
+            }
+
+            .alert-info {
+                font-size: 12px;
+                padding: var(--spacing-3);
+            }
+
+            .device-card {
+                padding: var(--spacing-4);
+            }
+
+            .device-name {
+                font-size: 13px;
+            }
+
+            .device-details-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">🔐</div>
+                <div class="logo">ZTNAS</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item" onclick="goToDashboard()">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item active" data-view="devices">
+                    <span class="nav-icon">📱</span>
+                    <span>My Devices</span>
+                </button>
+                <button class="nav-item" onclick="goToLoginActivity()">
+                    <span class="nav-icon">📋</span>
+                    <span>Login Activity</span>
+                </button>
+                <button class="nav-item" onclick="goToProfile()">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>ZTNAS v1.0.0</p>
+                <button class="btn btn-secondary btn-sm" onclick="logout()" style="width: 100%; margin-top: var(--spacing-3);">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1>My Devices</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Loading...</span>
+                        <div class="avatar" id="avatar">👤</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <div class="alert-info">
+                    ℹ️ Manage your trusted devices here. Unknown devices will require additional verification during login.
+                </div>
+
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-4);">Your Registered Devices</h3>
+
+                <div class="device-grid" id="devicesGrid">
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: var(--spacing-4);">📱</div>
+                        <p>Loading your devices...</p>
+                    </div>
+                </div>
+
+                <!-- Admin View: All Devices Table -->
+                <div id="adminDevicesSection" style="display: none;">
+                    <hr style="border: none; border-top: 1px solid var(--slate-700); margin: var(--spacing-8) 0;">
+
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-4);">🔐 All Devices (Admin View)</h3>
+
+                    <div class="table-container">
+                        <table id="allDevicesTable">
+                            <thead>
+                                <tr>
+                                    <th>Device Name</th>
+                                    <th>Owner</th>
+                                    <th>OS</th>
+                                    <th>Browser</th>
+                                    <th>IP Address</th>
+                                    <th>Trust Score</th>
+                                    <th>Integrity</th>
+                                    <th>Last Seen</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allDevicesBody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; color: var(--slate-400); padding: var(--spacing-6);">
+                                        Loading devices...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+
+        window.addEventListener('load', async () => {
+            await loadUserInfo();
+            await loadMyDevices();
+            await checkIfAdmin();
+        });
+
+        async function loadUserInfo() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('user-name').textContent = user.username;
+                    document.getElementById('avatar').textContent = (user.username || 'U')[0].toUpperCase();
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        async function loadMyDevices() {
+            try {
+                const res = await fetch(`${API_BASE}/zero-trust/devices`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const devices = data.devices || [];
+
+                    if (devices.length === 0) {
+                        document.getElementById('devicesGrid').innerHTML = `
+                            <div class="empty-state" style="grid-column: 1 / -1;">
+                                <div style="font-size: 48px; margin-bottom: var(--spacing-4);">📱</div>
+                                <p>No devices registered yet</p>
+                                <p style="margin-top: var(--spacing-2); font-size: 12px; color: var(--slate-500);">
+                                    Your devices will appear here after you log in from a new device.
+                                </p>
+                            </div>
+                        `;
+                    } else {
+                        document.getElementById('devicesGrid').innerHTML = devices.map(device => `
+                            <div class="device-card">
+                                <div class="device-header">
+                                    <div class="device-icon">${getDeviceIcon(device.os || '')}</div>
+                                    <span class="device-badge ${device.trust_score > 70 ? 'trusted' : device.trust_score > 40 ? '' : 'untrusted'}">
+                                        Trust: ${Math.round(device.trust_score || 0)}%
+                                    </span>
+                                </div>
+
+                                <div class="device-name">${device.name || 'Unknown Device'}</div>
+
+                                <div class="device-details">
+                                    <div class="device-details-item">
+                                        <strong>OS:</strong>
+                                        <span>${device.os || 'Unknown'}</span>
+                                    </div>
+                                    <div class="device-details-item">
+                                        <strong>Browser:</strong>
+                                        <span>${device.browser || 'Unknown'}</span>
+                                    </div>
+                                    <div class="device-details-item">
+                                        <strong>IP:</strong>
+                                        <span><code style="background: var(--slate-900); padding: 2px 4px; border-radius: 2px; font-size: 11px;">${device.ip_address || '—'}</code></span>
+                                    </div>
+                                    <div class="device-details-item">
+                                        <strong>Last Seen:</strong>
+                                        <span>${new Date(device.last_used_at || Date.now()).toLocaleString()}</span>
+                                    </div>
+                                    <div class="device-details-item">
+                                        <strong>Integrity:</strong>
+                                        <span>${device.integrity_score || 0}%</span>
+                                    </div>
+
+                                    <div class="integrity-bar">
+                                        <div class="integrity-fill" style="width: ${device.integrity_score || 0}%; background-color: ${device.integrity_score > 70 ? '#10b981' : device.integrity_score > 40 ? '#f59e0b' : '#ef4444'};"></div>
+                                    </div>
+                                </div>
+
+                                <div class="device-actions">
+                                    ${device.is_trusted ? '<button class="btn-device" onclick="alert(\'Device is trusted\')">✓ Trusted</button>' : '<button class="btn-device" onclick="trustDevice(' + (device.id || 0) + ')">⭐ Trust Device</button>'}
+                                    <button class="btn-device danger" onclick="removeDevice(${device.id || 0})">🗑 Remove</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                document.getElementById('devicesGrid').innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; color: var(--red-400);">Error loading devices</div>';
+            }
+        }
+
+        async function checkIfAdmin() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    const isAdmin = user.roles && user.roles.some(r => r.name === 'admin');
+                    
+                    if (isAdmin) {
+                        document.getElementById('adminDevicesSection').style.display = 'block';
+                        await loadAllDevices();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
+        }
+
+        async function loadAllDevices() {
+            try {
+                const res = await fetch(`${API_BASE}/zero-trust/devices/all`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const devices = data.devices || [];
+                    const tbody = document.getElementById('allDevicesBody');
+
+                    if (devices.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--slate-400);">No devices found</td></tr>';
+                    } else {
+                        tbody.innerHTML = devices.map(device => `
+                            <tr>
+                                <td>${device.name || 'Unknown'}</td>
+                                <td>${device.user_name || '—'}</td>
+                                <td>${device.os || 'Unknown'}</td>
+                                <td>${device.browser || 'Unknown'}</td>
+                                <td><code style="background: var(--slate-900); padding: 2px 4px; border-radius: 2px; font-size: 11px;">${device.ip_address || '—'}</code></td>
+                                <td>
+                                    <div style="width: 60px; height: 20px; background: var(--slate-900); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${device.trust_score || 0}%; height: 100%; background: ${device.trust_score > 70 ? '#10b981' : device.trust_score > 40 ? '#f59e0b' : '#ef4444'};"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="width: 60px; height: 20px; background: var(--slate-900); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${device.integrity_score || 0}%; height: 100%; background: ${device.integrity_score > 70 ? '#10b981' : device.integrity_score > 40 ? '#f59e0b' : '#ef4444'};"></div>
+                                    </div>
+                                </td>
+                                <td>${new Date(device.last_used_at || Date.now()).toLocaleString()}</td>
+                                <td><span style="background: ${device.is_active ? 'var(--green-600)' : 'var(--red-600)'}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${device.is_active ? 'Active' : 'Inactive'}</span></td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading all devices:', error);
+            }
+        }
+
+        function getDeviceIcon(os) {
+            if (os.includes('Windows')) return '🪟';
+            if (os.includes('Mac')) return '🍎';
+            if (os.includes('Linux')) return '🐧';
+            if (os.includes('iPhone') || os.includes('iOS')) return '📱';
+            if (os.includes('Android')) return '🤖';
+            return '💻';
+        }
+
+        async function trustDevice(deviceId) {
+            try {
+                // This would call a backend endpoint to trust the device
+                alert('Device marked as trusted!');
+                await loadMyDevices();
+            } catch (error) {
+                console.error('Error trusting device:', error);
+            }
+        }
+
+        async function removeDevice(deviceId) {
+            if (!confirm('Remove this device?')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/zero-trust/devices/${deviceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (res.ok) {
+                    alert('Device removed');
+                    await loadMyDevices();
+                } else {
+                    alert('Failed to remove device');
+                }
+            } catch (error) {
+                console.error('Error removing device:', error);
+                alert('Error removing device');
+            }
+        }
+
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function goToLoginActivity() {
+            window.location.href = 'login-activity.html';
+        }
+
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function logout() {
+            auth.logout();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

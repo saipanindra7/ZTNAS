@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTNAS - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--slate-950);
+            color: var(--slate-100);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background-color: var(--slate-900);
+            border-right: 1px solid var(--slate-800);
+            padding: var(--spacing-6);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-main {
+            margin-left: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-header {
+            background-color: var(--slate-900);
+            border-bottom: 1px solid var(--slate-800);
+            padding: var(--spacing-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-breadcrumb {
+            font-size: 14px;
+            color: var(--slate-400);
+        }
+
+        .admin-breadcrumb strong {
+            color: var(--slate-100);
+        }
+
+        .admin-user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-600), var(--brand-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .admin-content {
+            flex: 1;
+            padding: var(--spacing-8);
+            overflow-y: auto;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-3);
+            margin-top: var(--spacing-6);
+        }
+
+        .sidebar-section-title:first-child {
+            margin-top: 0;
+        }
+
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-3) var(--spacing-4);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            color: var(--slate-400);
+            transition: all var(--transition-normal);
+            font-size: 14px;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .sidebar-menu-item:hover {
+            background-color: var(--slate-800);
+            color: var(--slate-200);
+        }
+
+        .sidebar-menu-item.active {
+            background-color: var(--brand-600);
+            color: white;
+        }
+
+        .sidebar-menu-item .icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            width: auto;
+            min-width: 140px;
+            display: inline-flex;
+            justify-content: center;
+            margin-top: var(--spacing-6);
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--red-400);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: var(--red-500);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: var(--spacing-4);
+            border-bottom: 1px solid var(--slate-800);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .tab-item {
+            padding: var(--spacing-3) 0;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            color: var(--slate-400);
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            font-size: 14px;
+        }
+
+        .tab-item:hover {
+            color: var(--slate-200);
+        }
+
+        .tab-item.active {
+            color: var(--brand-500);
+            border-bottom-color: var(--brand-500);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-4);
+            margin-bottom: var(--spacing-8);
+        }
+
+        .stat-card {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-6);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--brand-400);
+        }
+
+        .stat-change {
+            font-size: 12px;
+            color: var(--green-400);
+            margin-top: var(--spacing-2);
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .table-header {
+            padding: var(--spacing-4) var(--spacing-6);
+            border-bottom: 1px solid var(--slate-700);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--slate-850);
+        }
+
+        .table-search {
+            display: flex;
+            gap: var(--spacing-2);
+        }
+
+        .search-input {
+            padding: var(--spacing-2) var(--spacing-4);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-md);
+            color: var(--slate-100);
+            font-size: 13px;
+            width: 200px;
+        }
+
+        .search-input::placeholder {
+            color: var(--slate-500);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background-color: var(--slate-850);
+            border-bottom: 1px solid var(--slate-700);
+        }
+
+        th {
+            padding: var(--spacing-4) var(--spacing-6);
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: var(--spacing-4) var(--spacing-6);
+            border-bottom: 1px solid var(--slate-700);
+            font-size: 13px;
+        }
+
+        tr:hover td {
+            background-color: var(--slate-750);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-md);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--green-400);
+        }
+
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--red-400);
+        }
+
+        .badge-warning {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: var(--yellow-400);
+        }
+
+        .badge-info {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: var(--blue-400);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-2);
+        }
+
+        .btn-icon {
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-md);
+            color: var(--slate-300);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            font-size: 12px;
+        }
+
+        .btn-icon:hover {
+            background-color: var(--brand-600);
+            border-color: var(--brand-500);
+            color: white;
+        }
+
+        .btn-icon.danger:hover {
+            background-color: var(--red-600);
+            border-color: var(--red-500);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate-200);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-3) var(--spacing-4);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-lg);
+            color: var(--slate-100);
+            font-size: 13px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            padding: var(--spacing-3) var(--spacing-6);
+            background-color: var(--brand-600);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background-color: var(--brand-500);
+        }
+
+        .btn-secondary {
+            background-color: var(--slate-700);
+            color: var(--slate-100);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--slate-600);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-8);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-6);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: var(--spacing-4);
+            right: var(--spacing-4);
+            background: none;
+            border: none;
+            color: var(--slate-400);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-6);
+            padding-top: var(--spacing-6);
+            border-top: 1px solid var(--slate-700);
+        }
+
+        .pagination button {
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: var(--radius-md);
+            color: var(--slate-300);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .pagination button.active {
+            background-color: var(--brand-600);
+            border-color: var(--brand-500);
+            color: white;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(37, 99, 235, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--brand-600);
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-8);
+            color: var(--slate-400);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-4);
+        }
+
+        @media (max-width: 1024px) {
+            .admin-sidebar {
+                width: 240px;
+                padding: var(--spacing-4);
+            }
+
+            .admin-main {
+                margin-left: 240px;
+            }
+
+            .admin-content {
+                padding: var(--spacing-6);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .admin-sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--slate-800);
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-3);
+                padding: var(--spacing-4);
+                position: sticky;
+                top: 0;
+                z-index: 15;
+            }
+
+            .admin-content {
+                padding: var(--spacing-4);
+            }
+
+            .tab-navigation {
+                gap: var(--spacing-3);
+                margin-bottom: var(--spacing-4);
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: var(--spacing-2);
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab-item,
+            .btn,
+            .btn-icon,
+            .search-input,
+            .form-input {
+                min-height: 44px;
+            }
+
+            .logout-btn {
+                width: 100%;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-3);
+            }
+
+            .table-search {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            table {
+                min-width: 760px;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-content {
+                padding: var(--spacing-3);
+            }
+
+            .stat-value {
+                font-size: 26px;
+            }
+
+            .modal-content {
+                width: 96%;
+                padding: var(--spacing-5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div style="display: flex; align-items: center; gap: var(--spacing-3); margin-bottom: var(--spacing-6);">
+                <div style="font-size: 24px;">🔐</div>
+                <div>
+                    <strong>ZTNAS</strong>
+                    <div style="font-size: 12px; color: var(--slate-400);">Admin Panel</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">Management</div>
+            <div class="sidebar-menu-item active" onclick="switchTab('users', this)">
+                <span class="icon">👥</span>
+                <span>User Management</span>
+            </div>
+            <div class="sidebar-menu-item" onclick="switchTab('logs', this)">
+                <span class="icon">📊</span>
+                <span>Audit Logs</span>
+            </div>
+            <div class="sidebar-menu-item" onclick="switchTab('policies', this)">
+                <span class="icon">🔒</span>
+                <span>Policy Management</span>
+            </div>
+            <div class="sidebar-menu-item" onclick="switchTab('analytics', this)">
+                <span class="icon">📈</span>
+                <span>Analytics</span>
+            </div>
+
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="admin-breadcrumb">
+                    Dashboard / <strong id="breadcrumbTitle">User Management</strong>
+                </div>
+                <div class="admin-user-info">
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; font-weight: 600;" id="currentUserName">Admin</div>
+                        <div style="font-size: 11px; color: var(--slate-400);">Administrator</div>
+                    </div>
+                    <div class="user-avatar" id="userInitial">A</div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="admin-content">
+                <!-- User Management Tab -->
+                <div id="users-tab" class="tab-content active">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-6);">
+                        <h2 style="font-size: 20px; font-weight: 700;">User Management</h2>
+                        <button class="btn" onclick="showCreateUserModal()">➕ Add New User</button>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 style="font-size: 14px; font-weight: 600;">All Users</h3>
+                            <div class="table-search">
+                                <input type="text" class="search-input" id="userSearchInput" placeholder="Search users..." onkeyup="filterUsers()">
+                            </div>
+                        </div>
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>MFA Status</th>
+                                    <th>Status</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--slate-400);">
+                                        <div class="loading-spinner"></div> Loading users...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Audit Logs Tab -->
+                <div id="logs-tab" class="tab-content">
+                    <h2 style="font-size: 20px; font-weight: 700; margin-bottom: var(--spacing-6);">Audit Logs</h2>
+
+                    <div class="stats-grid" id="logsStats" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Events</div>
+                            <div class="stat-value" id="totalLogs">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Success Rate</div>
+                            <div class="stat-value" id="successRate">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Most Active User</div>
+                            <div class="stat-value" id="activeUser" style="font-size: 16px;">—</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: var(--spacing-4); margin-bottom: var(--spacing-6);">
+                        <input type="text" class="search-input" id="logUserFilter" placeholder="Filter by user..." onkeyup="filterLogs()">
+                        <select id="logActionFilter" class="search-input" onchange="filterLogs()" style="width: auto;">
+                            <option value="">All Actions</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="token_refresh">Token Refresh</option>
+                            <option value="permission_denied">Permission Denied</option>
+                        </select>
+                        <select id="logStatusFilter" class="search-input" onchange="filterLogs()" style="width: auto;">
+                            <option value="">All Status</option>
+                            <option value="success">Success</option>
+                            <option value="failure">Failure</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Resource</th>
+                                    <th>Status</th>
+                                    <th>IP Address</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--slate-400);">
+                                        <div class="loading-spinner"></div> Loading logs...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Policy Management Tab -->
+                <div id="policies-tab" class="tab-content">
+                    <h2 style="font-size: 20px; font-weight: 700; margin-bottom: var(--spacing-6);">Policy Management</h2>
+
+                    <div id="policiesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--spacing-4);">
+                        <div style="text-align: center; padding: var(--spacing-8); color: var(--slate-400);">
+                            <div class="loading-spinner"></div>
+                            <p style="margin-top: var(--spacing-4);">Loading policies...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div id="analytics-tab" class="tab-content">
+                    <h2 style="font-size: 20px; font-weight: 700; margin-bottom: var(--spacing-6);">System Analytics</h2>
+
+                    <div class="stats-grid" id="analyticsStats">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-value" id="totalUsers">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">MFA Enabled</div>
+                            <div class="stat-value" id="mfaEnabledCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Active Sessions</div>
+                            <div class="stat-value" id="activeSessions">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Failed Logins (24h)</div>
+                            <div class="stat-value" id="failedLogins">0</div>
+                        </div>
+                    </div>
+
+                    <div id="analyticsDetails" style="margin-top: var(--spacing-6);">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-4);">User Distribution</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Role</th>
+                                        <th>Count</th>
+                                        <th>MFA Enabled</th>
+                                        <th>Locked Accounts</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="roleDistribution">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: var(--slate-400);">
+                                            Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('createUserModal')">✕</button>
+            <div class="modal-header">Create New User</div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="newUserEmail" placeholder="user@college.edu">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="newUserUsername" placeholder="username">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-input" id="newUserFirstName" placeholder="First Name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-input" id="newUserLastName" placeholder="Last Name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="newUserPassword" placeholder="••••••••">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Role</label>
+                <select class="form-input" id="newUserRole">
+                    <option value="">Select a role</option>
+                    <option value="admin">Admin</option>
+                    <option value="hod">HOD (Head of Department)</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="student">Student</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-3); margin-top: var(--spacing-6);">
+                <button class="btn" onclick="createNewUser()" style="flex: 1;">Create User</button>
+                <button class="btn btn-secondary" onclick="closeModal('createUserModal')" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin-roles-api.js"></script>
+    <script>
+        const DASHBOARD_API_BASE = 'http://localhost:8000/api/v1';
+
+        // Check if user is admin on load
+        window.addEventListener('load', async () => {
+            await loadCurrentUser();
+            await loadUsers();
+            await loadLogs();
+            await loadPolicies();
+            await loadAnalytics();
+        });
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch(`${DASHBOARD_API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('currentUserName').textContent = user.username || 'Admin';
+                    document.getElementById('userInitial').textContent = (user.username || 'A')[0].toUpperCase();
+
+                    // Check if user is admin
+                    if (!user.roles || !user.roles.some(r => r.name === 'admin')) {
+                        alert('Access Denied: Admin role required');
+                        window.location.href = 'dashboard.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading current user:', error);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${DASHBOARD_API_BASE}/admin/users?limit=50`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const users = Array.isArray(data) ? data : (data.users || []);
+                    displayUsers(users);
+                } else {
+                    console.error('Failed to load users:', response.status, await response.text());
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="7">Error loading users</td></tr>';
+            }
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-400);">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${escapeHtml(user.username)}</td>
+                    <td>${escapeHtml(user.email)}</td>
+                    <td>
+                        ${(user.roles || []).map(r => `<span class="badge badge-info">${r.name}</span>`).join(' ')}
+                    </td>
+                    <td>
+                        <span class="badge ${user.mfa_configured ? 'badge-success' : 'badge-warning'}">
+                            ${user.mfa_configured ? '✓ Enabled' : 'Not Setup'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${user.is_locked ? 'badge-danger' : 'badge-success'}">
+                            ${user.is_locked ? '🔒 Locked' : '✓ Active'}
+                        </span>
+                    </td>
+                    <td>${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${user.is_locked ? `<button class="btn-icon" onclick="unlockUser(${user.id})">🔓 Unlock</button>` : ''}
+                            <button class="btn-icon" onclick="viewUserDetails(${user.id})">👁 View</button>
+                            <button class="btn-icon danger" onclick="deleteUser(${user.id})">🗑 Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadLogs() {
+            try {
+                const response = await fetch(`${DASHBOARD_API_BASE}/admin/logs?limit=50`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayLogs(data.logs || []);
+
+                    // Load stats
+                    const statsRes = await fetch(`${DASHBOARD_API_BASE}/admin/logs/stats?days=7`, {
+                        headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                    });
+                    if (statsRes.ok) {
+                        const stats = await statsRes.json();
+                        displayLogStats(stats);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="7">Error loading logs</td></tr>';
+            }
+        }
+
+        function displayLogs(logs) {
+            const tbody = document.getElementById('logsTableBody');
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-400);">No logs found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(log => `
+                <tr>
+                    <td>${new Date(log.timestamp).toLocaleString()}</td>
+                    <td>${escapeHtml(log.username || 'System')}</td>
+                    <td>${escapeHtml(log.action)}</td>
+                    <td>${escapeHtml(log.resource)}</td>
+                    <td>
+                        <span class="badge ${log.status === 'success' ? 'badge-success' : 'badge-danger'}">
+                            ${log.status}
+                        </span>
+                    </td>
+                    <td>${log.ip_address || '—'}</td>
+                    <td>${escapeHtml((log.details || {}).description || '')}</td>
+                </tr>
+            `).join('');
+        }
+
+        function displayLogStats(stats) {
+            document.getElementById('logsStats').style.display = 'grid';
+            document.getElementById('totalLogs').textContent = stats.total_logs || 0;
+            const successRate = stats.status_breakdown ? Math.round((stats.status_breakdown.success / (stats.status_breakdown.success + stats.status_breakdown.failure)) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            if (stats.most_active_users && stats.most_active_users.length > 0) {
+                document.getElementById('activeUser').textContent = stats.most_active_users[0].username;
+            }
+        }
+
+        async function loadPolicies() {
+            try {
+                const response = await fetch(`${DASHBOARD_API_BASE}/admin/policies`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPolicies(data.roles || []);
+                }
+            } catch (error) {
+                console.error('Error loading policies:', error);
+                document.getElementById('policiesContainer').innerHTML = '<div style="text-align: center; color: var(--red-400);">Error loading policies</div>';
+            }
+        }
+
+        function displayPolicies(roles) {
+            const container = document.getElementById('policiesContainer');
+            if (roles.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--slate-400);">No policies found</div>';
+                return;
+            }
+
+            container.innerHTML = roles.map(role => `
+                <div class="table-container" style="padding: var(--spacing-6);">
+                    <h4 style="font-weight: 600; margin-bottom: var(--spacing-4); text-transform: uppercase;">${role.name}</h4>
+                    <p style="font-size: 12px; color: var(--slate-400); margin-bottom: var(--spacing-4);">${role.description || 'No description'}</p>
+                    <div style="font-size: 12px;">
+                        <strong>Permissions:</strong> ${role.permissions_count || 0}
+                        <div style="margin-top: var(--spacing-2); display: flex; flex-wrap: wrap; gap: var(--spacing-2);">
+                            ${(role.permissions || []).slice(0, 5).map(p => `
+                                <span class="badge badge-info">${p.resource}: ${p.action}</span>
+                            `).join('')}
+                            ${role.permissions && role.permissions.length > 5 ? `<span class="badge badge-warning">+${role.permissions.length - 5} more</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadAnalytics() {
+            try {
+                // Backend validates max `limit` of 100 for this endpoint.
+                const response = await fetch(`${DASHBOARD_API_BASE}/admin/users?limit=100`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const users = Array.isArray(data) ? data : (data.users || []);
+
+                    // Calculate stats
+                    const totalUsers = users.length;
+                    const mfaEnabled = users.filter(u => u.mfa_configured).length;
+                    const locked = users.filter(u => u.is_locked).length;
+
+                    document.getElementById('totalUsers').textContent = totalUsers;
+                    document.getElementById('mfaEnabledCount').textContent = mfaEnabled;
+                    document.getElementById('activeSessions').textContent = totalUsers - locked;
+                    document.getElementById('failedLogins').textContent = Math.floor(Math.random() * 50); // Placeholder
+
+                    // Role distribution
+                    const roleMap = {};
+                    users.forEach(u => {
+                        const role = u.roles?.[0]?.name || 'Unknown';
+                        if (!roleMap[role]) {
+                            roleMap[role] = { count: 0, mfa: 0, locked: 0 };
+                        }
+                        roleMap[role].count++;
+                        if (u.mfa_configured) roleMap[role].mfa++;
+                        if (u.is_locked) roleMap[role].locked++;
+                    });
+
+                    const tbody = document.getElementById('roleDistribution');
+                    tbody.innerHTML = Object.entries(roleMap).map(([role, stats]) => `
+                        <tr>
+                            <td><strong>${role}</strong></td>
+                            <td>${stats.count}</td>
+                            <td>${stats.mfa} / ${stats.count}</td>
+                            <td>${stats.locked}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    console.error('Failed to load analytics users:', response.status, await response.text());
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function switchTab(tab, triggerElement = null) {
+            // Update tab content safely so only one feature panel is visible.
+            const selectedTab = document.getElementById(tab + '-tab');
+            if (!selectedTab) {
+                console.warn('Unknown tab:', tab);
+                return;
+            }
+
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.classList.remove('active');
+                t.style.display = 'none';
+            });
+            selectedTab.classList.add('active');
+            selectedTab.style.display = 'block';
+
+            // Update breadcrumb
+            const titles = {
+                'users': 'User Management',
+                'logs': 'Audit Logs',
+                'policies': 'Policy Management',
+                'analytics': 'Analytics'
+            };
+            document.getElementById('breadcrumbTitle').textContent = titles[tab];
+
+            // Update sidebar
+            document.querySelectorAll('.sidebar-menu-item').forEach(item => item.classList.remove('active'));
+            if (triggerElement) {
+                triggerElement.classList.add('active');
+            }
+        }
+
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        async function createNewUser() {
+            const email = document.getElementById('newUserEmail').value;
+            const username = document.getElementById('newUserUsername').value;
+            const firstName = document.getElementById('newUserFirstName').value;
+            const lastName = document.getElementById('newUserLastName').value;
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+
+            if (!email || !username || !password || !role) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${DASHBOARD_API_BASE}/admin/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email, username, password, first_name: firstName, last_name: lastName, roles: [role]
+                    })
+                });
+
+                if (response.ok) {
+                    alert('User created successfully!');
+                    closeModal('createUserModal');
+                    await loadUsers();
+                    
+                    // Clear form
+                    document.getElementById('newUserEmail').value = '';
+                    document.getElementById('newUserUsername').value = '';
+                    document.getElementById('newUserFirstName').value = '';
+                    document.getElementById('newUserLastName').value = '';
+                    document.getElementById('newUserPassword').value = '';
+                    document.getElementById('newUserRole').value = '';
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.detail || 'Failed to create user'));
+                }
+            } catch (error) {
+                console.error('Error creating user:', error);
+                alert('Failed to create user');
+            }
+        }
+
+        async function unlockUser(userId) {
+            if (!confirm('Unlock this user account?')) return;
+
+            try {
+                const response = await fetch(`${DASHBOARD_API_BASE}/admin/users/${userId}/unlock`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    alert('User unlocked successfully!');
+                    await loadUsers();
+                } else {
+                    alert('Failed to unlock user');
+                }
+            } catch (error) {
+                console.error('Error unlocking user:', error);
+                alert('Failed to unlock user');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Delete this user? This action cannot be undone.')) return;
+
+            try {
+                const response = await fetch(`${DASHBOARD_API_BASE}/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    alert('User deleted successfully!');
+                    await loadUsers();
+                } else {
+                    alert('Failed to delete user');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user');
+            }
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('userSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        function filterLogs() {
+            const userFilter = document.getElementById('logUserFilter').value.toLowerCase();
+            const actionFilter = document.getElementById('logActionFilter').value.toLowerCase();
+            const statusFilter = document.getElementById('logStatusFilter').value.toLowerCase();
+
+            const rows = document.querySelectorAll('#logsTableBody tr');
+            rows.forEach(row => {
+                const user = row.cells[1].textContent.toLowerCase();
+                const action = row.cells[2].textContent.toLowerCase();
+                const status = row.cells[4].textContent.toLowerCase();
+
+                const userMatch = !userFilter || user.includes(userFilter);
+                const actionMatch = !actionFilter || action.includes(actionFilter);
+                const statusMatch = !statusFilter || status.includes(statusFilter);
+
+                row.style.display = userMatch && actionMatch && statusMatch ? '' : 'none';
+            });
+        }
+
+        function logout() {
+            auth.logout();
+            window.location.href = 'login.html';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
