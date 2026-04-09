@@ -9,6 +9,12 @@ from pathlib import Path
 # Add parent directory to path so imports work correctly
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# Force a test-safe environment before importing application settings/main.
+os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-for-pytest-1234567890")
+os.environ.setdefault("DEBUG", "False")
+os.environ.setdefault("ENVIRONMENT", "test")
+
 import pytest
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
@@ -16,9 +22,7 @@ from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
 # Import after path setup
-from main import app
 from config.database import Base, get_db
-from config.settings import settings
 
 # Create test engine with StaticPool to ensure all connections use the same in-memory database
 engine = create_engine(
@@ -52,6 +56,8 @@ def db():
 @pytest.fixture(scope="function")
 def client(db: Session):
     """Create test client with database override"""
+    from main import app
+
     def override_get_db():
         try:
             yield db
