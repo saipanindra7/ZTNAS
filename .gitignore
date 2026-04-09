@@ -1,0 +1,30 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Environment and secrets
+.env
+*.env
+backend/.env
+
+# Runtime logs and local databases
+*.log
+*.out
+*.pid
+*.sqlite
+*.sqlite3
+*.db
+
+# Test outputs and temporary files
+*_results.txt
+*output*.txt
+*.tmp
+*.temp
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/settings.json
