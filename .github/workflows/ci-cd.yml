@@ -54,7 +54,7 @@ jobs:
       - name: Security checks (non-blocking)
         run: |
           bandit -r app utils -q || true
-          safety check -r requirements.txt || true
+          safety scan || true
 
   docker-build:
     runs-on: ubuntu-latest
