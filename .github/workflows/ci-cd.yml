@@ -25,7 +25,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          echo "Pinned safety dependency:"
+          grep -E '^safety==' requirements-dev.txt || true
           pip install -r requirements-dev.txt
+          echo "Installed safety package details:"
+          pip show safety || true
 
       - name: Lint (non-blocking)
         run: |
