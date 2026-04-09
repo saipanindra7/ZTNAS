@@ -193,12 +193,15 @@ Option B: Use VS Code Live Server extension
 - `DELETE /api/v1/admin/users/{id}` - Delete user (admin)
 
 ### Role & Permission Management
-- `GET /api/roles` - List roles
-- `POST /api/roles` - Create role
-- `PUT /api/roles/{id}` - Update role
-- `DELETE /api/roles/{id}` - Delete role
-- `GET /api/permissions` - List permissions
-- `POST /api/roles/{id}/permissions` - Assign permissions to role
+- `GET /api/v1/admin/roles` - List roles (admin)
+- `POST /api/v1/admin/roles` - Create role (admin)
+- `PUT /api/v1/admin/roles/{role_id}` - Update role (admin)
+- `DELETE /api/v1/admin/roles/{role_id}` - Delete role (admin)
+- `GET /api/v1/admin/permissions` - List permissions (admin)
+- `POST /api/v1/admin/permissions` - Create permission (admin)
+- `POST /api/v1/admin/roles/{role_id}/permissions` - Assign permissions to role (admin)
+- `POST /api/v1/admin/users/{user_id}/roles` - Assign role to user (admin)
+- `GET /api/v1/admin/users/{user_id}/roles` - Get user roles (admin)
 
 ### Device Management
 - `POST /api/v1/zero-trust/devices/register` - Register trusted device
@@ -237,7 +240,7 @@ Option B: Use VS Code Live Server extension
 5. ✅ **Anomaly Detection:** Risk-based authentication
 6. ✅ **Audit Trail:** Comprehensive logging
 7. ✅ **Session Management:** Token-based with refresh
-8. ✅ **Rate Limiting:** To be implemented
+8. ✅ **Rate Limiting:** Implemented on critical auth endpoints
 
 ## Development Roadmap
 
