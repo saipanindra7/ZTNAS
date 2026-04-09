@@ -34,15 +34,13 @@ ztnas/
 ### Authentication & MFA
 - ✅ User registration and login
 - ✅ Password hashing with bcrypt
-- ✅ **6+ Multi-Factor Authentication methods:**
+- ✅ **Implemented Multi-Factor Authentication methods:**
   - TOTP (Time-based One-Time Password)
   - SMS OTP
   - Email OTP
-  - FIDO2 Hardware tokens
-  - Biometric authentication
   - **Picture Password (innovative gesture-based)**
-  - Push notifications
   - Backup codes
+- ℹ️ FIDO2/Biometric/Push schemas exist as design scaffolding but are not fully implemented end-to-end in this build.
 
 ### Zero Trust Architecture
 - ✅ Continuous authentication and verification
@@ -164,26 +162,35 @@ Access frontend at: http://localhost:5500/static/html/index.html
 
 Option B: Use VS Code Live Server extension
 
-## API Endpoints (To Be Implemented)
+## API Endpoints (Implemented)
 
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/refresh-token` - Refresh JWT token
-- `POST /api/auth/password-reset` - Password reset request
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/logout` - User logout
+- `POST /api/v1/auth/refresh` - Refresh JWT token
+- `POST /api/v1/auth/change-password` - Password change
 
 ### MFA Management
-- `POST /api/mfa/enroll` - Enroll in MFA method
-- `POST /api/mfa/verify` - Verify MFA code
-- `GET /api/mfa/methods` - Get user's MFA methods
-- `DELETE /api/mfa/methods/{id}` - Remove MFA method
+- `POST /api/v1/mfa/totp/setup` - Create TOTP secret + QR
+- `POST /api/v1/mfa/totp/enroll` - Enroll/verify TOTP
+- `POST /api/v1/mfa/sms/setup` - Send SMS OTP
+- `POST /api/v1/mfa/email/setup` - Send Email OTP
+- `POST /api/v1/mfa/otp/verify` - Verify SMS/Email OTP
+- `POST /api/v1/mfa/picture/setup` - Upload picture password image
+- `POST /api/v1/mfa/picture/define` - Save picture tap pattern
+- `POST /api/v1/mfa/backup-codes/generate` - Generate backup codes
+- `POST /api/v1/mfa/verify` - Verify MFA code during auth flow
+- `GET /api/v1/mfa/status` - MFA readiness status
+- `GET /api/v1/mfa/methods` - List user MFA methods
+- `DELETE /api/v1/mfa/methods/{id}` - Remove MFA method
 
 ### User Management
-- `GET /api/users` - List users (admin)
-- `GET /api/users/{id}` - Get user details
-- `PUT /api/users/{id}` - Update user
-- `DELETE /api/users/{id}` - Delete user
+- `GET /api/v1/admin/users` - List users (admin)
+- `GET /api/v1/admin/users/{id}` - Get user details (admin)
+- `POST /api/v1/admin/users` - Create user (admin)
+- `PUT /api/v1/admin/users/{id}` - Update user (admin)
+- `DELETE /api/v1/admin/users/{id}` - Delete user (admin)
 
 ### Role & Permission Management
 - `GET /api/roles` - List roles
@@ -194,16 +201,15 @@ Option B: Use VS Code Live Server extension
 - `POST /api/roles/{id}/permissions` - Assign permissions to role
 
 ### Device Management
-- `GET /api/devices` - List user's devices
-- `POST /api/devices` - Register device
-- `PUT /api/devices/{id}` - Update device trust
-- `DELETE /api/devices/{id}` - Remove device
+- `POST /api/v1/zero-trust/devices/register` - Register trusted device
+- `GET /api/v1/zero-trust/devices/trusted` - List trusted devices
+- `DELETE /api/v1/zero-trust/devices/{device_id}` - Remove trusted device
 
 ### Audit & Security
-- `GET /api/audit-logs` - Get audit logs (paginated)
-- `GET /api/anomalies` - Get detected anomalies
-- `GET /api/sessions` - Get active sessions
-- `DELETE /api/sessions/{id}` - Revoke session
+- `GET /api/v1/auth/audit/logs` - User-facing audit feed
+- `GET /api/v1/admin/audit/logs` - Filtered admin audit logs
+- `GET /api/v1/zero-trust/anomalies/recent` - Detected anomalies
+- `GET /api/v1/zero-trust/risk/timeline` - Risk history timeline
 
 ## Database Schema
 
@@ -246,13 +252,12 @@ Option B: Use VS Code Live Server extension
 - [x] Role and permission endpoints (4 roles, 16 permissions)
 - [x] RBAC middleware
 
-### Phase 3: ✅ MFA Implementation (All 6+ types)
+### Phase 3: ✅ MFA Implementation (Current Build)
 - [x] TOTP setup & verification
 - [x] SMS/Email OTP
-- [x] FIDO2/Hardware tokens
 - [x] **Picture Password MFA** (Custom gesture recognition with canvas)
 - [x] Backup codes
-- [x] Unified MFA endpoint
+- [x] Unified MFA verification endpoint
 - [x] MFA enrollment UI
 
 ### Phase 4: ✅ Zero Trust Features

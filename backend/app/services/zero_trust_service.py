@@ -17,6 +17,39 @@ logger = logging.getLogger(__name__)
 
 class ZeroTrustService:
     """Service for Zero Trust access control and evaluation"""
+
+    @staticmethod
+    def _default_behavior_profile() -> Dict:
+        """Default behavior profile values used for new users."""
+        return {
+            "typical_hours": list(range(9, 18)),
+            "typical_days": [0, 1, 2, 3, 4],
+            "typical_locations": [],
+            "typical_devices": [],
+            "avg_session_duration": 30,
+            "login_frequency_per_day": 1.0,
+        }
+
+    @staticmethod
+    def _normalize_behavior_profile(profile: Optional[BehaviorProfile]) -> Dict:
+        """Map persisted behavior profile columns to the in-memory shape used by service logic."""
+        defaults = ZeroTrustService._default_behavior_profile()
+        if not profile:
+            return defaults
+
+        login_patterns = profile.login_patterns or {}
+        device_patterns = profile.device_patterns or {}
+        location_patterns = profile.location_patterns or {}
+        typical_actions = profile.typical_actions or {}
+
+        return {
+            "typical_hours": login_patterns.get("typical_hours", defaults["typical_hours"]),
+            "typical_days": login_patterns.get("typical_days", defaults["typical_days"]),
+            "typical_locations": location_patterns.get("typical_locations", defaults["typical_locations"]),
+            "typical_devices": device_patterns.get("typical_devices", defaults["typical_devices"]),
+            "avg_session_duration": typical_actions.get("avg_session_duration", defaults["avg_session_duration"]),
+            "login_frequency_per_day": login_patterns.get("login_frequency_per_day", defaults["login_frequency_per_day"]),
+        }
     
     # ==================== Device Trust Scoring ====================
     
@@ -46,7 +79,8 @@ class ZeroTrustService:
                 return trust_score, False
             
             # Device is known
-            days_since_use = (datetime.utcnow() - registered_device.last_used).days
+            last_seen = registered_device.last_seen or registered_device.created_at or datetime.utcnow()
+            days_since_use = (datetime.utcnow() - last_seen).days
             
             # Scoring logic
             base_score = registered_device.trust_score if registered_device.trust_score else 0.5
@@ -62,15 +96,14 @@ class ZeroTrustService:
                 trust_score = base_score * 0.8  # Decay trust over time
             
             # OS/Browser consistency check
-            if (device_info.os and registered_device.device_info.get("os") and 
-                device_info.os != registered_device.device_info.get("os")):
+            if (device_info.os and registered_device.os_name and device_info.os != registered_device.os_name):
                 trust_score -= 0.1  # OS changed, reduce trust
             
             # Clamp to valid range
             trust_score = max(0.0, min(1.0, trust_score))
             
             # Update last_used
-            registered_device.last_used = datetime.utcnow()
+            registered_device.last_seen = datetime.utcnow()
             db.commit()
             
             return trust_score, True
@@ -96,15 +129,23 @@ class ZeroTrustService:
             
             if existing:
                 existing.device_name = device_name
+                existing.device_type = device_info.device_type
+                existing.os_name = device_info.os
+                existing.browser_name = device_info.browser
                 existing.trust_score = 0.9
-                existing.last_used = datetime.utcnow()
+                existing.is_trusted = True
+                existing.last_seen = datetime.utcnow()
             else:
                 device = DeviceRegistry(
                     user_id=user_id,
                     device_id=device_id,
                     device_name=device_name,
-                    device_info=device_info.dict(),
-                    trust_score=0.8
+                    device_type=device_info.device_type,
+                    os_name=device_info.os,
+                    browser_name=device_info.browser,
+                    trust_score=0.8,
+                    is_trusted=True,
+                    last_seen=datetime.utcnow(),
                 )
                 db.add(device)
             
@@ -127,21 +168,22 @@ class ZeroTrustService:
             ).first()
             
             if not profile:
-                # Create default profile
+                defaults = ZeroTrustService._default_behavior_profile()
                 profile = BehaviorProfile(
                     user_id=user_id,
-                    behavior_data={
-                        "typical_hours": list(range(9, 18)),  # 9 AM to 6 PM
-                        "typical_days": [0, 1, 2, 3, 4],  # Mon-Fri
-                        "typical_locations": [],
-                        "typical_devices": [],
-                        "avg_session_duration": 30
-                    }
+                    login_patterns={
+                        "typical_hours": defaults["typical_hours"],
+                        "typical_days": defaults["typical_days"],
+                        "login_frequency_per_day": defaults["login_frequency_per_day"],
+                    },
+                    device_patterns={"typical_devices": defaults["typical_devices"]},
+                    location_patterns={"typical_locations": defaults["typical_locations"]},
+                    typical_actions={"avg_session_duration": defaults["avg_session_duration"]},
                 )
                 db.add(profile)
                 db.commit()
             
-            return profile.behavior_data if profile.behavior_data else {}
+            return ZeroTrustService._normalize_behavior_profile(profile)
         except Exception as e:
             logger.error(f"Error getting behavior profile: {str(e)}")
             return None
@@ -501,7 +543,7 @@ class ZeroTrustService:
             if not profile:
                 return
             
-            data = profile.behavior_data or {}
+            data = ZeroTrustService._normalize_behavior_profile(profile)
             
             # Update typical hours
             current_hour = datetime.utcnow().hour
@@ -521,9 +563,22 @@ class ZeroTrustService:
             if location not in typical_locations:
                 typical_locations.append(location)
             data["typical_locations"] = typical_locations
-            
-            profile.behavior_data = data
-            profile.updated_at = datetime.utcnow()
+
+            profile.login_patterns = {
+                "typical_hours": data["typical_hours"],
+                "typical_days": data["typical_days"],
+                "login_frequency_per_day": data.get("login_frequency_per_day", 1.0),
+            }
+            profile.device_patterns = {
+                "typical_devices": data["typical_devices"],
+            }
+            profile.location_patterns = {
+                "typical_locations": data["typical_locations"],
+            }
+            profile.typical_actions = {
+                "avg_session_duration": data.get("avg_session_duration", 30),
+            }
+            profile.last_updated = datetime.utcnow()
             db.commit()
             
             logger.info(f"Updated behavior profile for user {user_id}")

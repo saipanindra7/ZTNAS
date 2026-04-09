@@ -148,63 +148,58 @@ def create_app():
             ]
         }
     
-    # DEBUG ENDPOINT - Unlock account (REMOVE IN PRODUCTION)
-    @app.post("/debug/unlock/{username}", tags=["Debug"])
-    def debug_unlock_account(username: str):
-        """TEMPORARY: Unlock a locked account for testing"""
-        if not settings.DEBUG:
-            return {"error": "Only available in DEBUG mode"}
-        
-        try:
-            from app.models import User
-            db = SessionLocal()
-            user = db.query(User).filter(User.username == username).first()
-            
-            if not user:
+    if settings.DEBUG:
+        # DEBUG ENDPOINT - Unlock account (REMOVE IN PRODUCTION)
+        @app.post("/debug/unlock/{username}", tags=["Debug"])
+        def debug_unlock_account(username: str):
+            """TEMPORARY: Unlock a locked account for testing"""
+            try:
+                from app.models import User
+                db = SessionLocal()
+                user = db.query(User).filter(User.username == username).first()
+
+                if not user:
+                    db.close()
+                    return {"error": f"User '{username}' not found"}
+
+                user.is_locked = False
+                user.failed_login_attempts = 0
+                user.last_locked_time = None
+                db.commit()
                 db.close()
-                return {"error": f"User '{username}' not found"}
-            
-            user.is_locked = False
-            user.failed_login_attempts = 0
-            user.last_locked_time = None
-            db.commit()
-            db.close()
-            
-            logger.info(f"DEBUG: Unlocked user {username}")
-            return {"success": True, "message": f"User {username} unlocked"}
-        except Exception as e:
-            logger.error(f"DEBUG unlock error: {e}")
-            return {"error": str(e)}
-    
-    # DEBUG ENDPOINT - Set password (REMOVE IN PRODUCTION)
-    @app.post("/debug/setpassword/{username}/{password}", tags=["Debug"])
-    def debug_set_password(username: str, password: str):
-        """TEMPORARY: Set user password for testing"""
-        if not settings.DEBUG:
-            return {"error": "Only available in DEBUG mode"}
-        
-        try:
-            from app.models import User
-            from utils.security import hash_password
-            
-            db = SessionLocal()
-            user = db.query(User).filter(User.username == username).first()
-            
-            if not user:
+
+                logger.info(f"DEBUG: Unlocked user {username}")
+                return {"success": True, "message": f"User {username} unlocked"}
+            except Exception as e:
+                logger.error(f"DEBUG unlock error: {e}")
+                return {"error": str(e)}
+
+        # DEBUG ENDPOINT - Set password (REMOVE IN PRODUCTION)
+        @app.post("/debug/setpassword/{username}/{password}", tags=["Debug"])
+        def debug_set_password(username: str, password: str):
+            """TEMPORARY: Set user password for testing"""
+            try:
+                from app.models import User
+                from utils.security import hash_password
+
+                db = SessionLocal()
+                user = db.query(User).filter(User.username == username).first()
+
+                if not user:
+                    db.close()
+                    return {"error": f"User '{username}' not found"}
+
+                user.password_hash = hash_password(password)
+                user.is_locked = False
+                user.failed_login_attempts = 0
+                db.commit()
                 db.close()
-                return {"error": f"User '{username}' not found"}
-            
-            user.password_hash = hash_password(password)
-            user.is_locked = False
-            user.failed_login_attempts = 0
-            db.commit()
-            db.close()
-            
-            logger.info(f"DEBUG: Password set for user {username}")
-            return {"success": True, "message": f"Password updated for {username}"}
-        except Exception as e:
-            logger.error(f"DEBUG password set error: {e}")
-            return {"error": str(e)}
+
+                logger.info(f"DEBUG: Password set for user {username}")
+                return {"success": True, "message": f"Password updated for {username}"}
+            except Exception as e:
+                logger.error(f"DEBUG password set error: {e}")
+                return {"error": str(e)}
     
     # Include routers
     from app.routes import auth, mfa, zero_trust, mfa_setup, admin_management, student, faculty, hod, admin_roles

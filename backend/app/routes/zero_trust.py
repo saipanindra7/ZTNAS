@@ -87,7 +87,7 @@ async def list_trusted_devices(
                 "device_id": d.device_id,
                 "device_name": d.device_name,
                 "trust_score": d.trust_score,
-                "last_used": d.last_used,
+                "last_used": d.last_seen,
                 "registered_at": d.created_at
             }
             for d in devices
@@ -256,7 +256,7 @@ async def acknowledge_anomaly(
     if not anomaly:
         raise HTTPException(status_code=404, detail="Anomaly not found")
     
-    anomaly.is_acknowledged = True
+    anomaly.is_resolved = True
     db.commit()
     
     return {"success": True, "message": "Anomaly acknowledged"}
@@ -295,13 +295,15 @@ async def reset_behavior_profile(
     ).first()
     
     if profile:
-        profile.behavior_data = {
+        profile.login_patterns = {
             "typical_hours": list(range(9, 18)),
             "typical_days": [0, 1, 2, 3, 4],
-            "typical_locations": [],
-            "typical_devices": [],
-            "avg_session_duration": 30
+            "login_frequency_per_day": 1.0,
         }
+        profile.device_patterns = {"typical_devices": []}
+        profile.location_patterns = {"typical_locations": []}
+        profile.typical_actions = {"avg_session_duration": 30}
+        profile.last_updated = datetime.utcnow()
         db.commit()
     
     return {"success": True, "message": "Behavior profile reset"}

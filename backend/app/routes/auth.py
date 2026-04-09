@@ -383,8 +383,16 @@ def admin_get_account_status(
 
 # DEBUG ENDPOINT - Remove in production
 @router.get("/debug/users", tags=["Debug"])
-def debug_list_users(db: Session = Depends(get_db)):
+def debug_list_users(
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """DEBUG: List all users and their info (remove in production!)"""
+    if not settings.DEBUG:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    if not _is_admin_user(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+
     from app.models import User
     users = db.query(User).all()
     
@@ -397,8 +405,6 @@ def debug_list_users(db: Session = Depends(get_db)):
             "is_active": user.is_active,
             "is_locked": user.is_locked,
             "failed_attempts": user.failed_login_attempts,
-            "password_hash_length": len(user.password_hash) if user.password_hash else 0,
-            "password_hash_preview": user.password_hash[:40] if user.password_hash else None,
             "created_at": user.created_at,
             "last_login": user.last_login
         })
@@ -409,8 +415,18 @@ def debug_list_users(db: Session = Depends(get_db)):
     }
 
 @router.post("/debug/test-login/{username}/{password}", tags=["Debug"])
-def debug_test_login(username: str, password: str, db: Session = Depends(get_db)):
+def debug_test_login(
+    username: str,
+    password: str,
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """DEBUG: Test password verification manually"""
+    if not settings.DEBUG:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    if not _is_admin_user(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+
     from app.models import User
     from utils.security import verify_password
     
@@ -430,8 +446,7 @@ def debug_test_login(username: str, password: str, db: Session = Depends(get_db)
         "password_correct": result,
         "is_active": user.is_active,
         "is_locked": user.is_locked,
-        "failed_attempts": user.failed_login_attempts,
-        "password_hash_preview": user.password_hash[:40]
+        "failed_attempts": user.failed_login_attempts
     }
 
 @router.get("/me", response_model=UserDetail)
